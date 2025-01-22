@@ -10,6 +10,9 @@ export default function Home() {
             element.scrollIntoView({ behavior: 'smooth' });
         }
     };
+    const GoToAuth = () => {    
+        window.location.href = "/auth";
+    }
 
     return (
         <div className="home">
@@ -31,7 +34,7 @@ export default function Home() {
                     </p>
                     <div className="hero-buttons animate-up delay-2">
                         <button className="hero-button primary">
-                            <FiUploadCloud className="button-icon" />
+                            <FiUploadCloud className="button-icon"  onClick={GoToAuth}/>
                             Start Uploading
                         </button>
                         <button className="hero-button secondary">
