@@ -1,11 +1,14 @@
 import './Navigation.css';
-import { FiUploadCloud, FiShield, FiZap, FiGift } from 'react-icons/fi';
-
+import { FiShield, FiZap } from 'react-icons/fi';
 export default function Navigation({ onScrollTo }) {
-    return (
+     const GoToAuth = () =>
+     {  
+        window.location.href = "/auth";
+     }
+     return (
         <nav className="navbar">
             <div className="navbar-logo">
-                <FiUploadCloud className="logo-icon pulse-animation" />
+                {/* <FiUploadCloud className="logo-icon pulse-animation" /> */}
                 CloudShare
             </div>
             <div className="navbar-links">
@@ -23,11 +26,11 @@ export default function Navigation({ onScrollTo }) {
                     <FiShield className="nav-icon" />
                     <span>Security</span>
                 </a>
-                <a href="#start" className="navbar-link special">
+                {/* <a href="#start" className="navbar-link special">
                     <FiGift className="nav-icon" />
                     <span>Get 5GB Free</span>
-                </a>
-                <button className="navbar-button">Upload Now</button>
+                </a> */}
+                <button onClick={GoToAuth} className="navbar-button">Get Started</button>
             </div>
         </nav>
     );
