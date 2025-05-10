@@ -9,7 +9,7 @@ export default function Navigation({ onScrollTo }) {
         <nav className="navbar">
             <div className="navbar-logo">
                 {/* <FiUploadCloud className="logo-icon pulse-animation" /> */}
-                FileShare
+                DocuTrust   
             </div>
             <div className="navbar-links">
                 <a href="#features" className="navbar-link" onClick={(e) => {

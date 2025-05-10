@@ -31,7 +31,7 @@ const Sidebar = () => {
         <aside className="dashboard-sidebar">
             <div className="sidebar-header">
                 <FiCloud className="logo-icon" />
-                <h1 className="logo-text">FileShare</h1>
+                <h1 className="logo-text">DocuTrust</h1>
             </div>
 
             <nav className="sidebar-nav">
