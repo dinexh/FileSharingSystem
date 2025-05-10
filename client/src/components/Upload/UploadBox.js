@@ -94,8 +94,13 @@ const UploadBox = () => {
         return interval;
     };
 
-    const handleUpload = async () => {
+    const handleUpload = async (e) => {
         if (!file) return;
+        
+        // Prevent event propagation to avoid triggering file input click
+        if (e) {
+            e.stopPropagation();
+        }
         
         setButtonLoading(true);
         setError('');
@@ -202,7 +207,7 @@ const UploadBox = () => {
                             <button 
                                 type="button"
                                 className={`upload-button ${buttonLoading ? 'loading' : ''}`}
-                                onClick={handleUpload}
+                                onClick={(e) => handleUpload(e)}
                                 disabled={buttonLoading}
                             >
                                 {buttonLoading ? (

@@ -11,7 +11,7 @@
     flex: 1 1 0;
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(99, 102, 241, 0.09);
+    box-shadow: 0 4px 24px rgba(59, 130, 246, 0.09);
     padding: 2.5rem 2rem 2rem 2rem;
     min-width: 320px;
     max-width: 400px;
@@ -23,7 +23,7 @@
 .profile-section-title {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #4f46e5;
+    color: #3b82f6;
     margin-bottom: 1.5rem;
     letter-spacing: 0.01em;
     text-align: left;
@@ -63,7 +63,7 @@
 }
 
 .profile-form input:focus {
-    border-color: #6366f1;
+    border-color: #3b82f6;
     outline: none;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .profile-save-btn {
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -87,7 +87,12 @@
 }
 
 .profile-save-btn:hover {
-    background: #4f46e5;
+    background: #2563eb;
+}
+
+.profile-save-btn:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
 }
 
 .form-error {
@@ -97,14 +102,96 @@
     margin-bottom: 0.5rem;
 }
 
+.profile-image-upload {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-image-select-btn {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.profile-image-select-btn:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.profile-image-select-btn:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+}
+
+.selected-file-name {
+    font-size: 0.85rem;
+    color: #4b5563;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.upload-progress-container {
+    margin: 0.8rem 0;
+    width: 100%;
+}
+
+.upload-progress-bar {
+    width: 100%;
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.upload-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.upload-progress-text {
+    font-size: 0.85rem;
+    color: #3b82f6;
+    text-align: right;
+}
+
+.profile-preview-container {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-preview-wrapper {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #f8fafc;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .profile-preview {
-    margin-top: 0.5rem;
-    width: 60px;
-    height: 60px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #6366f1;
-    background: #f1f5f9;
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 900px) {

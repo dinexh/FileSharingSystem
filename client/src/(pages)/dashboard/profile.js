@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ProfileForm from '../../components/Profile/ProfileForm';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FiUser } from 'react-icons/fi';
 
 const ProfilePage = () => {
     const { user, login } = useAuth();
@@ -63,8 +64,17 @@ const ProfilePage = () => {
     };
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <h2>Edit Profile</h2>
+        <div className="dashboard-content-area">
+            <div className="dashboard-page-header">
+                <div className="page-header-icon">
+                    <FiUser size={24} />
+                </div>
+                <h1 className="page-header-title">My Profile</h1>
+                <p className="page-header-description">
+                    Update your profile information and password
+                </p>
+            </div>
+            
             <ProfileForm
                 initialProfile={user || {}}
                 onSave={handleSave}
