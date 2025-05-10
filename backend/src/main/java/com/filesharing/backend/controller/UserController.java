@@ -23,6 +23,18 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody UpdateProfileRequest request) {
+        User user = userService.updateProfile(authentication.getName(), request.getFullName(), request.getProfileImageUrl());
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/profile/password")
+    public ResponseEntity<?> updatePassword(Authentication authentication, @RequestBody UpdatePasswordRequest request) {
+        userService.updatePassword(authentication.getName(), request.getPassword());
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/profile/image")
     public ResponseEntity<?> updateProfileImage(
             Authentication authentication,
@@ -32,14 +44,23 @@ public class UserController {
     }
 }
 
+class UpdateProfileRequest {
+    private String fullName;
+    private String profileImageUrl;
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getProfileImageUrl() { return profileImageUrl; }
+    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+}
+
+class UpdatePasswordRequest {
+    private String password;
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+}
+
 class UpdateProfileImageRequest {
     private String imageUrl;
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 } 
