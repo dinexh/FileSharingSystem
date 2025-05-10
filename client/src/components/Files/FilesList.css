@@ -1,8 +1,8 @@
 /* Files List Container */
 .files-list-container {
-    background: #fff;
+    background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px var(--shadow-color);
     overflow: hidden;
     margin-bottom: 2rem;
 }
@@ -13,8 +13,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.2rem;
-    border-bottom: 1px solid #e5e7eb;
-    background-color: #f0f7ff;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-color);
 }
 
 .files-filter {
@@ -24,54 +24,52 @@
 }
 
 .filter-icon {
-    color: #3b82f6;
+    color: var(--primary-color);
     font-size: 1.1rem;
 }
 
 .files-filter label {
     font-weight: 500;
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 .files-filter select {
     padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    background-color: white;
-    color: #1f2937;
+    background-color: var(--card-bg);
+    color: var(--text-primary);
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .files-filter select:hover, .files-filter select:focus {
-    border-color: #3b82f6;
+    border-color: var(--primary-color);
     outline: none;
 }
 
 .refresh-button {
-    background-color: #f0f7ff;
-    color: #3b82f6;
-    border: 1px solid #93c5fd;
+    background-color: var(--surface-color);
+    color: var(--primary-color);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 0.5rem 1rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .refresh-button:hover {
-    background-color: #dbeafe;
-    color: #2563eb;
+    background-color: var(--border-color);
+    color: var(--primary-dark);
 }
 
 /* Files Table */
 .files-table-container {
     overflow-x: auto;
     max-width: 100%;
-    background-color: white;
+    background-color: var(--card-bg);
 }
 
 .files-table {
@@ -83,7 +81,7 @@
 .files-table th, .files-table td {
     padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -91,20 +89,19 @@
 
 .files-table th {
     font-weight: 600;
-    color: #3b82f6;
-    background-color: #f0f7ff;
+    color: var(--primary-color);
+    background-color: var(--surface-color);
     cursor: pointer;
     transition: background-color 0.2s;
-    position: relative;
 }
 
 .files-table th:hover {
-    background-color: #dbeafe;
+    background-color: var(--border-color);
 }
 
 .files-table th.sorted {
-    color: #2563eb;
-    background-color: #dbeafe;
+    color: var(--primary-dark);
+    background-color: var(--border-color);
 }
 
 .sort-arrow {
@@ -117,7 +114,7 @@
 }
 
 .files-table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
 }
 
 /* File Type Cell */
@@ -137,8 +134,8 @@
 }
 
 .file-name {
-    background: #eff6ff;
-    color: #2563eb;
+    background: var(--surface-color);
+    color: var(--primary-color);
     padding: 0.4rem 0.8rem;
     border-radius: 4px;
     font-weight: 500;
@@ -148,7 +145,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Owner Cell */
@@ -173,8 +169,8 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background-color: #3b82f6;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--card-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,13 +195,13 @@
 }
 
 .access-public {
-    background-color: #ecfdf5;
-    color: #10b981;
+    background-color: var(--success-bg);
+    color: var(--success-color);
 }
 
 .access-private {
-    background-color: #fff1f2;
-    color: #e11d48;
+    background-color: var(--error-bg);
+    color: var(--error-color);
 }
 
 /* Action Buttons */
@@ -218,7 +214,7 @@
     background: none;
     border: none;
     font-size: 1.1rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 0.4rem;
     border-radius: 4px;
@@ -227,24 +223,24 @@
 }
 
 .file-action-btn:hover {
-    background-color: #f0f7ff;
+    background-color: var(--surface-color);
 }
 
 .file-action-btn.download:hover {
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 .file-action-btn.share:hover {
-    color: #8b5cf6;
+    color: var(--secondary-color);
 }
 
 .file-action-btn.view:hover {
-    color: #10b981;
+    color: var(--success-color);
 }
 
 .file-action-btn.delete:hover {
-    color: #ef4444;
-    background-color: #fee2e2;
+    color: var(--error-color);
+    background-color: var(--error-bg);
 }
 
 .file-action-btn.star {
@@ -252,16 +248,15 @@
 }
 
 .file-action-btn.star.starred {
-    color: #f59e0b;
-    fill: #f59e0b;
+    color: var(--warning-color);
 }
 
 .file-action-btn.star.starred svg {
-    fill: #f59e0b;
+    fill: var(--warning-color);
 }
 
 .file-action-btn.star:hover {
-    color: #f59e0b;
+    color: var(--warning-color);
 }
 
 /* Loading State */
@@ -271,17 +266,17 @@
     align-items: center;
     justify-content: center;
     padding: 4rem 2rem;
-    color: #6b7280;
-    background-color: white;
+    color: var(--text-secondary);
+    background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .files-loader {
     width: 50px;
     height: 50px;
-    border: 5px solid #dbeafe;
-    border-top: 5px solid #3b82f6;
+    border: 5px solid var(--border-color);
+    border-top: 5px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -296,27 +291,26 @@
 .files-error {
     text-align: center;
     padding: 4rem 2rem;
-    color: #ef4444;
-    background-color: white;
+    color: var(--error-color);
+    background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .retry-button {
     margin-top: 1rem;
     padding: 0.6rem 1.2rem;
-    background-color: #dbeafe;
-    color: #3b82f6;
+    background-color: var(--surface-color);
+    color: var(--primary-color);
     border: none;
     border-radius: 6px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .retry-button:hover {
-    background-color: #bfdbfe;
+    background-color: var(--border-color);
 }
 
 /* Empty State */
@@ -326,23 +320,23 @@
     align-items: center;
     justify-content: center;
     padding: 4rem 2rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     text-align: center;
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px var(--shadow-color);
 }
 
 .no-files-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 .no-files h2 {
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 /* Responsive Design */
@@ -405,7 +399,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: var(--overlay-bg);
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -414,14 +408,14 @@
 }
 
 .file-viewer-container {
-    background-color: white;
+    background-color: var(--card-bg);
     border-radius: 12px;
     width: 90%;
     max-width: 1200px;
     height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px var(--shadow-color);
     overflow: hidden;
 }
 
@@ -430,8 +424,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-    background-color: #f0f7ff;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-color);
 }
 
 .file-viewer-title {
@@ -447,7 +441,7 @@
 .file-viewer-title h3 {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #3b82f6;
+    color: var(--primary-color);
     margin: 0;
     max-width: 600px;
     white-space: nowrap;
@@ -459,7 +453,7 @@
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     cursor: pointer;
     width: 40px;
     height: 40px;
@@ -471,13 +465,13 @@
 }
 
 .close-viewer-btn:hover {
-    background-color: rgba(107, 114, 128, 0.1);
-    color: #4b5563;
+    background-color: var(--surface-color);
+    color: var(--text-primary);
 }
 
 .file-viewer-content {
     flex: 1;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
     padding: 0;
     position: relative;
     overflow: hidden;
@@ -485,7 +479,7 @@
 
 .file-viewer-content iframe {
     border: none;
-    background-color: white;
+    background-color: var(--card-bg);
 }
 
 /* PDF Viewer Styles */
@@ -493,14 +487,14 @@
     position: relative;
     width: 100%;
     height: 100%;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
 }
 
 .pdf-viewer {
     width: 100%;
     height: 100%;
     border: none;
-    background-color: white;
+    background-color: var(--card-bg);
 }
 
 .pdf-viewer-fallback-message {
@@ -509,19 +503,19 @@
     left: 0;
     right: 0;
     text-align: center;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: var(--card-bg);
     padding: 0.5rem;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--border-color);
 }
 
 .pdf-viewer-fallback-message p {
     margin: 0;
     font-size: 0.9rem;
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 .pdf-viewer-fallback-message a {
-    color: #2563eb;
+    color: var(--primary-dark);
     font-weight: 500;
     text-decoration: none;
 }
@@ -537,7 +531,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
     padding: 1rem;
     overflow: auto;
 }
@@ -550,7 +544,7 @@
     align-items: center;
     width: 100%;
     height: 100%;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
     padding: 2rem;
     text-align: center;
 }
@@ -558,12 +552,12 @@
 .file-icon-large {
     font-size: 5rem;
     margin-bottom: 1.5rem;
-    color: #3b82f6;
+    color: var(--primary-color);
 }
 
 .file-viewer-download-container p {
     font-size: 1.1rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     margin-bottom: 1.5rem;
 }
 
@@ -571,20 +565,20 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: #3b82f6;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--card-bg);
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .file-download-button:hover {
-    background-color: #2563eb;
+    background-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 6px var(--shadow-color);
 }
 
 /* PDF Loading */
@@ -595,21 +589,21 @@
     justify-content: center;
     height: 100%;
     padding: 2rem;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
 }
 
 .pdf-loader {
     width: 40px;
     height: 40px;
-    border: 4px solid #e5e7eb;
-    border-top: 4px solid #3b82f6;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
 }
 
 .pdf-loading p {
-    color: #3b82f6;
+    color: var(--primary-color);
     font-weight: 500;
 }
 
@@ -621,17 +615,17 @@
     justify-content: center;
     height: 100%;
     padding: 2rem;
-    background-color: #f8fafc;
+    background-color: var(--surface-color);
     text-align: center;
 }
 
 .pdf-error p {
-    color: #ef4444;
+    color: var(--error-color);
     margin-bottom: 1rem;
 }
 
 .pdf-error p:last-of-type {
-    color: #4b5563;
+    color: var(--text-primary);
     margin-bottom: 1.5rem;
 }
 
@@ -654,21 +648,21 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: #3b82f6;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--card-bg);
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
     font-weight: 500;
     border: none;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .pdf-view-button:hover {
-    background-color: #2563eb;
+    background-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 6px var(--shadow-color);
 }
 
 .pdf-fallback {
@@ -676,10 +670,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 1.5rem;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow-color);
     text-align: center;
     max-width: 90%;
     z-index: 2;
@@ -687,11 +681,11 @@
 
 .pdf-fallback p {
     margin: 0;
-    color: #4b5563;
+    color: var(--text-primary);
 }
 
 .pdf-fallback a {
-    color: #3b82f6;
+    color: var(--primary-dark);
     font-weight: 500;
     text-decoration: none;
 }
@@ -704,7 +698,7 @@
 .pdf-link-button {
     background: none;
     border: none;
-    color: #3b82f6;
+    color: var(--primary-color);
     font-weight: 500;
     cursor: pointer;
     padding: 0;
@@ -722,7 +716,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f1f5f9;
+    background-color: var(--surface-color);
     overflow: auto;
     position: relative;
 }
@@ -734,7 +728,7 @@
 }
 
 .pdf-page {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 10px var(--shadow-color);
     margin: 0 auto;
 }
 
@@ -748,8 +742,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 16px;
-    background-color: #f0f7ff;
-    border-bottom: 1px solid #e5e7eb;
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .pdf-navigation {
@@ -766,7 +760,7 @@
 
 .pdf-control-btn {
     background: none;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     width: 32px;
     height: 32px;
@@ -774,14 +768,14 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #3b82f6;
+    color: var(--primary-color);
     font-size: 1rem;
     transition: all 0.2s;
 }
 
 .pdf-control-btn:hover {
-    background-color: #e0e7ff;
-    border-color: #3b82f6;
+    background-color: var(--surface-color);
+    border-color: var(--primary-color);
 }
 
 .pdf-control-btn:disabled {
@@ -792,7 +786,7 @@
 .pdf-page-info {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #4b5563;
+    color: var(--text-primary);
     min-width: 120px;
     text-align: center;
 }
@@ -800,7 +794,7 @@
 .pdf-zoom-level {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #4b5563;
+    color: var(--text-primary);
     min-width: 60px;
     text-align: center;
 }
@@ -809,4 +803,146 @@
 .pdf-controls .file-download-button {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
+}
+
+.files-container {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.files-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.files-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.files-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.file-card {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.file-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border-color: var(--primary-color);
+}
+
+.file-card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.file-card-info h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-card-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.file-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.file-card-action {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.file-card-action:hover {
+    background-color: var(--border-color);
+    color: var(--primary-color);
+}
+
+.file-card-action svg {
+    font-size: 1.25rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.empty-state-text {
+    font-size: 1.125rem;
+    margin: 0 0 1.5rem 0;
+}
+
+.upload-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.upload-button:hover {
+    background-color: var(--primary-hover);
 } 
