@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import defaultAvatar from '../../assets/default-avatar.svg';
 import './Header.css';
 import { FiLogOut, FiUser, FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
@@ -8,6 +9,7 @@ import FileSearchResults from '../Search/FileSearchResults';
 
 const Header = ({ userName, userProfileImage }) => {
     const { logout } = useAuth();
+    const { theme } = useTheme();
     const [showMenu, setShowMenu] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -167,62 +169,67 @@ const Header = ({ userName, userProfileImage }) => {
 
     return (
         <header className="dashboard-header">
-            <div className="header-left">
-                <div className="search-container" ref={searchContainerRef}>
-                    <FiSearch className="search-icon" />
-                    <input
-                        type="text"
-                        placeholder="Search files..."
-                        className="search-input"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                        onFocus={handleSearchFocus}
-                    />
-                    {searchQuery && (
-                        <button className="search-clear-button" onClick={clearSearch}>
-                            <FiX size={16} />
-                        </button>
-                    )}
-                    
-                    {showResults && (
-                        <FileSearchResults
-                            results={searchResults}
-                            isLoading={isSearching}
-                            onClose={() => setShowResults(false)}
+            <div className="header-content">
+                <div className="header-left">
+                    <div className="search-container" ref={searchContainerRef}>
+                        <FiSearch className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search files..."
+                            className="search-input"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            onFocus={handleSearchFocus}
                         />
-                    )}
-                </div>
-            </div>
-            
-            <div className="user-profile-container">
-                <div className="user-profile" onClick={handleProfileClick}>
-                    <span className="user-name">{userName}</span>
-                    <div className="profile-image-container">
-                        <img 
-                            src={getProfileImageUrl(userProfileImage)} 
-                            alt="Profile" 
-                            className="profile-image"
-                            onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = defaultAvatar;
-                            }}
-                        />
+                        {searchQuery && (
+                            <button className="search-clear-button" onClick={clearSearch}>
+                                <FiX size={16} />
+                            </button>
+                        )}
+                        
+                        {showResults && (
+                            <FileSearchResults
+                                results={searchResults}
+                                isLoading={isSearching}
+                                onClose={() => setShowResults(false)}
+                            />
+                        )}
                     </div>
-                    <FiChevronDown className="dropdown-icon" />
                 </div>
                 
-                {showMenu && (
-                    <div className="profile-dropdown">
-                        <Link to="/dashboard/profile" className="dropdown-item">
-                            <FiUser className="dropdown-icon" />
-                            <span>Profile</span>
-                        </Link>
-                        <div className="dropdown-item" onClick={handleLogout}>
-                            <FiLogOut className="dropdown-icon" />
-                            <span>Logout</span>
+                <div className="header-right">
+                    <div className="user-profile-container">
+                        <div className="user-profile" onClick={handleProfileClick}>
+                            <span className="user-name">{userName}</span>
+                            <div className="profile-image-container">
+                                <img 
+                                    src={getProfileImageUrl(userProfileImage)} 
+                                    alt="Profile" 
+                                    className="profile-image"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = defaultAvatar;
+                                    }}
+                                />
+                            </div>
+                            <FiChevronDown className="profile-caret" />
                         </div>
+                        
+                        {showMenu && (
+                            <div className={`profile-dropdown ${showMenu ? 'show' : ''}`}>
+                                <Link to="/dashboard/profile" className="dropdown-item">
+                                    <FiUser />
+                                    <span>Profile</span>
+                                </Link>
+                                <div className="dropdown-divider"></div>
+                                <div className="dropdown-item danger" onClick={handleLogout}>
+                                    <FiLogOut />
+                                    <span>Logout</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
         </header>
     );

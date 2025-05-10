@@ -12,14 +12,14 @@
     text-align: center;
     padding: 1.25rem 0.5rem;
     border-radius: 12px;
-    background-color: #f8fafc;
+    background-color: var(--bg-light);
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
 .quick-action-item:hover {
     transform: translateY(-3px);
-    background-color: #f1f5f9;
+    background-color: var(--bg-lighter);
 }
 
 .quick-action-icon {
@@ -39,7 +39,7 @@
 }
 
 .quick-action-label {
-    color: #334155;
+    color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 500;
 }

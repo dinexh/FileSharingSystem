@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import { 
     FiHome, 
     FiFile, 
@@ -14,6 +15,7 @@ import './Sidebar.css';
 
 const Sidebar = () => {
     const location = useLocation();
+    const { theme } = useTheme();
 
     const menuItems = [
         { icon: <FiHome />, label: 'Home', path: '/dashboard' },

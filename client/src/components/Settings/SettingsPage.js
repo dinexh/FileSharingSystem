@@ -8,10 +8,11 @@ import {
     FiUser, 
     FiEye
 } from 'react-icons/fi';
+import { useTheme } from '../../context/ThemeContext';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
-    const [theme, setTheme] = useState('light');
+    const { theme, toggleTheme } = useTheme();
     const [language, setLanguage] = useState('english');
     const [notifications, setNotifications] = useState(true);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -19,10 +20,6 @@ const SettingsPage = () => {
     const [confirmText, setConfirmText] = useState('');
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        setTheme(savedTheme);
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        
         const savedLanguage = localStorage.getItem('language') || 'english';
         setLanguage(savedLanguage);
         
@@ -31,9 +28,7 @@ const SettingsPage = () => {
     }, []);
 
     const handleThemeChange = (newTheme) => {
-        setTheme(newTheme);
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+        toggleTheme(newTheme);
     };
 
     const handleLanguageChange = (e) => {
