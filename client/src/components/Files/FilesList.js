@@ -17,17 +17,16 @@ const FilesList = () => {
 
     useEffect(() => {
         fetchFiles();
-        // Load starred files from localStorage
-        const savedStarredFiles = localStorage.getItem('starredFiles');
-        if (savedStarredFiles) {
-            setStarredFiles(JSON.parse(savedStarredFiles));
-        }
     }, []);
 
     const fetchFiles = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8080/api/files/with-details');
+            const response = await fetch('http://localhost:8080/api/files/with-details', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
             
             if (!response.ok) {
                 throw new Error(`Error fetching files: ${response.status}`);
@@ -35,6 +34,13 @@ const FilesList = () => {
             
             const data = await response.json();
             setFiles(data);
+            
+            // Extract starred file IDs from file data
+            const starredIds = data
+                .filter(file => file.isStarred)
+                .map(file => file.id);
+            setStarredFiles(starredIds);
+            
             setError('');
         } catch (err) {
             console.error('Error fetching files:', err);
@@ -52,6 +58,9 @@ const FilesList = () => {
         try {
             const response = await fetch(`http://localhost:8080/api/files/${id}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
 
             if (!response.ok) {
@@ -220,19 +229,50 @@ const FilesList = () => {
             return true;
         });
 
-    const handleToggleStar = (fileId) => {
-        const newStarredFiles = starredFiles.includes(fileId)
-            ? starredFiles.filter(id => id !== fileId)
-            : [...starredFiles, fileId];
-        
-        setStarredFiles(newStarredFiles);
-        localStorage.setItem('starredFiles', JSON.stringify(newStarredFiles));
-        
-        toast.success(
-            starredFiles.includes(fileId) 
-                ? 'File removed from starred' 
-                : 'File added to starred'
-        );
+    const handleToggleStar = async (fileId) => {
+        try {
+            const isCurrentlyStarred = starredFiles.includes(fileId);
+            const method = isCurrentlyStarred ? 'DELETE' : 'POST';
+            const url = `http://localhost:8080/api/files/star/${fileId}`;
+            
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to ${isCurrentlyStarred ? 'unstar' : 'star'} file`);
+            }
+            
+            const data = await response.json();
+            
+            // Update starred files state
+            if (isCurrentlyStarred) {
+                setStarredFiles(starredFiles.filter(id => id !== fileId));
+                // Update file object in files array
+                setFiles(files.map(file => 
+                    file.id === fileId ? { ...file, isStarred: false } : file
+                ));
+            } else {
+                setStarredFiles([...starredFiles, fileId]);
+                // Update file object in files array
+                setFiles(files.map(file => 
+                    file.id === fileId ? { ...file, isStarred: true } : file
+                ));
+            }
+            
+            toast.success(
+                isCurrentlyStarred 
+                    ? 'File removed from starred' 
+                    : 'File added to starred'
+            );
+        } catch (err) {
+            console.error('Error toggling star:', err);
+            toast.error(`Failed to ${starredFiles.includes(fileId) ? 'unstar' : 'star'} file. Please try again.`);
+        }
     };
 
     const handleShare = (file) => {

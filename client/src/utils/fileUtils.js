@@ -25,7 +25,11 @@ export const getFileUrl = (file, forDownload = false) => {
 export const getFileBlob = async (file) => {
     try {
         const url = getFileUrl(file);
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
         if (!response.ok) throw new Error(`Error fetching file: ${response.statusText}`);
         return await response.blob();
     } catch (error) {
@@ -40,8 +44,26 @@ export const getFileBlob = async (file) => {
  */
 export const viewFileInNewTab = (file) => {
     if (!file) return;
+    // Create a temporary URL with the token
     const url = getFileUrl(file);
-    window.open(url, '_blank');
+    
+    // For security reasons, we can't directly include Authorization headers when opening a new tab
+    // But we can use a workaround to create a temporary form and submit it
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+    form.target = '_blank';
+    
+    // Add token as a hidden field
+    const tokenField = document.createElement('input');
+    tokenField.type = 'hidden';
+    tokenField.name = 'token';
+    tokenField.value = localStorage.getItem('token') || '';
+    form.appendChild(tokenField);
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
 };
 
 /**
@@ -52,18 +74,33 @@ export const downloadFile = (file) => {
     if (!file) return;
     
     const url = getFileUrl(file, true);
+    const token = localStorage.getItem('token');
     
-    // For modern browsers
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', file.originalName || 'download');
-    document.body.appendChild(link);
-    link.click();
-    
-    // Clean up
-    setTimeout(() => {
-        document.body.removeChild(link);
-    }, 100);
+    // Use fetch with authorization header and then create a downloadable blob
+    fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        // Create an object URL for the blob
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Create a link element to trigger the download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.setAttribute('download', file.originalName || file.fileName || 'download');
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        }, 100);
+    })
+    .catch(error => console.error('Error downloading file:', error));
 };
 
 /**

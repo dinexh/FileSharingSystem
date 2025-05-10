@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StreamUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @RestController
 @RequestMapping("/api/files")
@@ -39,19 +41,51 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<File> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         System.out.println("Upload endpoint hit!");
-        File uploadedFile = fileService.uploadFile(file);
+        
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        File uploadedFile = fileService.uploadFile(file, userId);
         return ResponseEntity.ok(uploadedFile);
     }
 
     @GetMapping
     public ResponseEntity<List<File>> getAllFiles() {
-        List<File> files = fileService.getAllFiles();
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        List<File> files = fileService.getFilesByUserId(userId);
         return ResponseEntity.ok(files);
     }
     
     @GetMapping("/with-details")
     public ResponseEntity<List<Map<String, Object>>> getAllFilesWithDetails() {
-        List<Map<String, Object>> filesWithDetails = fileService.getAllFilesWithUserDetails();
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        // Use the method that adds star status to files
+        List<Map<String, Object>> filesWithDetails = fileService.getFilesWithUserDetailsByUserIdWithStars(userId);
         return ResponseEntity.ok(filesWithDetails);
     }
     
@@ -64,7 +98,24 @@ public class FileController {
     @GetMapping("/download/{fileId}")
     public void downloadFile(@PathVariable Long fileId, HttpServletResponse response) throws IOException {
         try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                // Get user ID by username/email
+                userId = fileService.getUserIdByEmail(username);
+            }
+            
             File file = fileService.getFileById(fileId);
+            
+            // Check if user has access to the file
+            if (!file.getUserId().equals(userId) && !file.isPublic()) {
+                response.sendError(HttpStatus.FORBIDDEN.value(), "You don't have permission to access this file");
+                return;
+            }
+            
             Path filePath = Paths.get(file.getFilePath());
             java.io.File fileObject = filePath.toFile();
             
@@ -105,7 +156,23 @@ public class FileController {
     @GetMapping("/view/{fileId}")
     public void viewFile(@PathVariable Long fileId, HttpServletResponse response) throws IOException {
         try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                // Get user ID by username/email
+                userId = fileService.getUserIdByEmail(username);
+            }
+            
             File file = fileService.getFileById(fileId);
+            
+            // Check if user has access to the file
+            if (!file.getUserId().equals(userId) && !file.isPublic()) {
+                response.sendError(HttpStatus.FORBIDDEN.value(), "You don't have permission to access this file");
+                return;
+            }
             
             // For now we only support PDF viewing
             if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
@@ -150,7 +217,22 @@ public class FileController {
 
     @GetMapping("/pdf/{fileId}")
     public ResponseEntity<Resource> viewPdf(@PathVariable Long fileId) throws IOException {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
         File file = fileService.getFileById(fileId);
+        
+        // Check if user has access to the file
+        if (!file.getUserId().equals(userId) && !file.isPublic()) {
+            throw new IOException("You don't have permission to access this file");
+        }
         
         // Check if it's a PDF
         if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
@@ -183,5 +265,67 @@ public class FileController {
     public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) throws IOException {
         fileService.deleteFile(fileId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/star/{fileId}")
+    public ResponseEntity<Map<String, Object>> starFile(@PathVariable Long fileId) {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        boolean starred = fileService.starFile(fileId, userId);
+        Map<String, Object> response = Map.of(
+            "success", true,
+            "fileId", fileId,
+            "starred", true,
+            "status", starred ? "STARRED" : "ALREADY_STARRED"
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @DeleteMapping("/star/{fileId}")
+    public ResponseEntity<Map<String, Object>> unstarFile(@PathVariable Long fileId) {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        boolean unstarred = fileService.unstarFile(fileId, userId);
+        Map<String, Object> response = Map.of(
+            "success", true,
+            "fileId", fileId,
+            "starred", false,
+            "status", unstarred ? "UNSTARRED" : "NOT_STARRED"
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/starred")
+    public ResponseEntity<List<Map<String, Object>>> getStarredFiles() {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        List<Map<String, Object>> starredFiles = fileService.getStarredFilesWithDetailsByUserId(userId);
+        return ResponseEntity.ok(starredFiles);
     }
 } 

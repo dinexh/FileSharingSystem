@@ -43,10 +43,20 @@ const DashboardHome = () => {
                     // Take the 5 most recent files
                     setRecentFiles(sortedFiles.slice(0, 5));
                     
-                    // Get starred files from localStorage
-                    const savedStarredFileIds = JSON.parse(localStorage.getItem('starredFiles') || '[]');
-                    const starredFilesData = filesData.filter(file => savedStarredFileIds.includes(file.id));
-                    setStarredFiles(starredFilesData);
+                    // Get starred files from backend
+                    const starredResponse = await fetch('http://localhost:8080/api/files/starred', {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (starredResponse.ok) {
+                        const starredData = await starredResponse.json();
+                        setStarredFiles(starredData);
+                    } else {
+                        console.error('Error fetching starred files:', starredResponse.status);
+                        setStarredFiles([]);
+                    }
                     
                     // Calculate storage metrics
                     const usedStorage = filesData.reduce((total, file) => total + file.fileSize, 0);
@@ -83,10 +93,7 @@ const DashboardHome = () => {
                 
                 setRecentFiles(sampleFiles);
                 setAllFiles(sampleFiles);
-                
-                const savedStarredFileIds = JSON.parse(localStorage.getItem('starredFiles') || '[]');
-                const starredFilesData = sampleFiles.filter(file => savedStarredFileIds.includes(file.id));
-                setStarredFiles(starredFilesData);
+                setStarredFiles([]);
                 
                 setStorage({
                     used: 14.5 * 1024 * 1024,

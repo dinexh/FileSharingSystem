@@ -121,6 +121,9 @@ const UploadBox = () => {
             fetch('http://localhost:8080/api/files/upload', {
                 method: 'POST',
                 body: formData,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             })
             .then(response => {
                 console.log('Upload response status:', response.status);
