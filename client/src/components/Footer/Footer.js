@@ -8,7 +8,7 @@ export default function Footer() {
                 <div className="footer-brand">
                     <div className="footer-logo">
                         <FiUploadCloud className="footer-logo-icon" />
-                        <span>CloudShare</span>
+                        <span>FileShare</span>
                     </div>
                     <p className="footer-description">
                         Secure file sharing platform for teams and individuals.
