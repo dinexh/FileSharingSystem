@@ -28,4 +28,17 @@ public class UserService {
         // Save user
         return userRepository.save(user);
     }
+
+    public User updateProfileImage(String email, String imageUrl) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setProfileImageUrl(imageUrl);
+        return userRepository.save(user);
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 } 

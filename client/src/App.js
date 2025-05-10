@@ -1,19 +1,35 @@
-import './App.css';
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from './(pages)/home/page';
-import Auth from './(pages)/auth/page';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './(pages)/home/page';
+import AuthPage from './(pages)/auth/page';
 import Dashboard from './(pages)/dashboard/page';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
+import './App.css';
 
 function App() {
   return (
     <Router>
-      <div className="App">
+      <AuthProvider>
         <Routes>
-          <Route exact path="/" element={<Home />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          
+          {/* Protected routes */}
+          <Route 
+            path="/dashboard/*" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Catch all route - redirect to landing page */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </div>
+      </AuthProvider>
     </Router>
   );
 }

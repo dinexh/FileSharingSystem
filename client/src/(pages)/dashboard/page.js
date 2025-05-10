@@ -1,8 +1,24 @@
+import React from 'react';
+import Header from '../../components/Dashboard/Header';
+import Sidebar from '../../components/Dashboard/Sidebar';
+import MainContent from '../../components/Dashboard/MainContent';
+import { useAuth } from '../../context/AuthContext';
+
 const Dashboard = () => {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-    </div>
-  );
+    const { user } = useAuth();
+
+    return (
+        <div className="dashboard">
+            <Header 
+                userName={user?.fullName || 'User'} 
+                userProfileImage={user?.profileImageUrl}
+            />
+            <div className="dashboard-content">
+                <Sidebar />
+                <MainContent />
+            </div>
+        </div>
+    );
 };
+
 export default Dashboard;

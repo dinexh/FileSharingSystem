@@ -1,0 +1,6 @@
+.dashboard-main {
+    margin-left: 250px; /* Sidebar width */
+    padding: 90px 2rem 2rem; /* Top padding to account for header */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+} 

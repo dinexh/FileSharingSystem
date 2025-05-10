@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FiMail, FiLock, FiUser, FiCloud, FiUploadCloud, FiShare2, FiShield, FiFolder } from 'react-icons/fi';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './page.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +14,7 @@ const Auth = () => {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const toggleMode = () => {
         setIsSignIn(!isSignIn);
@@ -35,9 +35,13 @@ const Auth = () => {
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    localStorage.setItem("token", data.accessToken);
+                    // Use the login function from AuthContext with the user data from the response
+                    login({
+                        email: data.email || email,
+                        fullName: data.fullName || email.split('@')[0],
+                        profileImageUrl: data.profileImageUrl
+                    }, data.accessToken);
                     toast.success("Login successful!");
-                    navigate("/dashboard");
                 } else {
                     const errorMessage = data.message || "Login failed";
                     setError(errorMessage);
@@ -158,11 +162,7 @@ const Auth = () => {
                         </div>
 
                         {isSignIn && (
-                            <div className="form-extra">
-                                <label className="checkbox-label">
-                                    <input type="checkbox" />
-                                    <span>Remember me</span>
-                                </label>
+                            <div className="form-extra" style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
                                 <a href="#forgot" className="forgot-link">Forgot password?</a>
                             </div>
                         )}

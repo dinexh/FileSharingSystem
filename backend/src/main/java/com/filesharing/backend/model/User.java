@@ -27,6 +27,9 @@ public class User implements UserDetails {
 
     private String password;
 
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+
     // Constructors
     public User() {}
     public User(String fullName, String email, String password) {
@@ -59,6 +62,12 @@ public class User implements UserDetails {
     }
     public void setPassword(String password) {
         this.password = password;
+    }
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 
     @Override
