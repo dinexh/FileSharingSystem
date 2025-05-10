@@ -247,6 +247,23 @@
     background-color: #fee2e2;
 }
 
+.file-action-btn.star {
+    transition: all 0.2s;
+}
+
+.file-action-btn.star.starred {
+    color: #f59e0b;
+    fill: #f59e0b;
+}
+
+.file-action-btn.star.starred svg {
+    fill: #f59e0b;
+}
+
+.file-action-btn.star:hover {
+    color: #f59e0b;
+}
+
 /* Loading State */
 .files-loading {
     display: flex;

@@ -1,0 +1,139 @@
+.recent-files {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.files-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.files-table th {
+    text-align: left;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.file-row {
+    transition: background-color 0.2s ease;
+}
+
+.file-row:hover {
+    background-color: #f8fafc;
+}
+
+.file-row td {
+    padding: 0.75rem 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.file-name-cell {
+    display: flex;
+    align-items: center;
+    max-width: 280px;
+}
+
+.file-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.75rem;
+}
+
+.file-name {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.file-name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.file-owner {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.2rem;
+}
+
+.file-size-cell {
+    color: #475569;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.file-date-cell {
+    color: #475569;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.file-actions-cell {
+    padding-right: 0.5rem;
+}
+
+.file-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.file-row:hover .file-actions {
+    opacity: 1;
+}
+
+.file-action-button {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-action-button:hover {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.file-action-button.download:hover {
+    color: #3b82f6;
+}
+
+@media (max-width: 768px) {
+    .file-date-header,
+    .file-date-cell {
+        display: none;
+    }
+    
+    .file-actions {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .file-size-header,
+    .file-size-cell {
+        display: none;
+    }
+} 

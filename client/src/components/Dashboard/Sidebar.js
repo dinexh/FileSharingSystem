@@ -7,7 +7,8 @@ import {
     FiSettings, 
     FiUser, 
     FiLogOut,
-    FiCloud
+    FiCloud,
+    FiShare2
 } from 'react-icons/fi';
 import './Sidebar.css';
 
@@ -17,6 +18,7 @@ const Sidebar = () => {
     const menuItems = [
         { icon: <FiHome />, label: 'Home', path: '/dashboard' },
         { icon: <FiFile />, label: 'Files', path: '/dashboard/files' },
+        { icon: <FiShare2 />, label: 'Shared', path: '/dashboard/shared' },
         { icon: <FiUpload />, label: 'Upload', path: '/dashboard/upload' },
         { icon: <FiSettings />, label: 'Settings', path: '/dashboard/settings' },
         { icon: <FiUser />, label: 'Profile', path: '/dashboard/profile' },

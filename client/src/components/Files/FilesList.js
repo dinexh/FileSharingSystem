@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './FilesList.css';
-import { FiDownload, FiTrash2, FiEye, FiLock, FiUnlock, FiFilter, FiX } from 'react-icons/fi';
+import { FiDownload, FiTrash2, FiEye, FiLock, FiUnlock, FiFilter, FiX, FiStar, FiShare2 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import PDFViewer from './PDFViewer';
 import { downloadFile, viewFileInNewTab } from '../../utils/fileUtils';
@@ -13,9 +13,15 @@ const FilesList = () => {
     const [sortDirection, setSortDirection] = useState('desc');
     const [fileTypeFilter, setFileTypeFilter] = useState('all');
     const [viewingFile, setViewingFile] = useState(null);
+    const [starredFiles, setStarredFiles] = useState([]);
 
     useEffect(() => {
         fetchFiles();
+        // Load starred files from localStorage
+        const savedStarredFiles = localStorage.getItem('starredFiles');
+        if (savedStarredFiles) {
+            setStarredFiles(JSON.parse(savedStarredFiles));
+        }
     }, []);
 
     const fetchFiles = async () => {
@@ -214,6 +220,26 @@ const FilesList = () => {
             return true;
         });
 
+    const handleToggleStar = (fileId) => {
+        const newStarredFiles = starredFiles.includes(fileId)
+            ? starredFiles.filter(id => id !== fileId)
+            : [...starredFiles, fileId];
+        
+        setStarredFiles(newStarredFiles);
+        localStorage.setItem('starredFiles', JSON.stringify(newStarredFiles));
+        
+        toast.success(
+            starredFiles.includes(fileId) 
+                ? 'File removed from starred' 
+                : 'File added to starred'
+        );
+    };
+
+    const handleShare = (file) => {
+        // For now, just show a toast - full share functionality will be implemented later
+        toast.info('Share functionality coming soon!');
+    };
+
     if (loading) {
         return (
             <div className="files-loading">
@@ -341,6 +367,13 @@ const FilesList = () => {
                                     </td>
                                     <td className="actions-cell">
                                         <button 
+                                            className={`file-action-btn star ${starredFiles.includes(file.id) ? 'starred' : ''}`}
+                                            title={starredFiles.includes(file.id) ? "Remove from starred" : "Add to starred"}
+                                            onClick={() => handleToggleStar(file.id)}
+                                        >
+                                            <FiStar />
+                                        </button>
+                                        <button 
                                             className="file-action-btn view" 
                                             title="View file"
                                             onClick={() => handleViewFile(file)}
@@ -353,6 +386,13 @@ const FilesList = () => {
                                             onClick={() => handleDownload(file)}
                                         >
                                             <FiDownload />
+                                        </button>
+                                        <button 
+                                            className="file-action-btn share" 
+                                            title="Share"
+                                            onClick={() => handleShare(file)}
+                                        >
+                                            <FiShare2 />
                                         </button>
                                         <button 
                                             className="file-action-btn delete" 
