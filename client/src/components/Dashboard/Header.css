@@ -20,61 +20,6 @@
     gap: 1rem;
 }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 8px;
-    transition: background-color 0.2s ease;
-}
-
-.user-profile:hover {
-    background-color: var(--border-color);
-}
-
-.user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--primary-color);
-}
-
-.user-name {
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-@media (max-width: 768px) {
-    .dashboard-header {
-        left: 0;
-    }
-}
-
-.search-bar{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.search-bar input[type="text"]{
-    padding: 0.7rem 1.2rem;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 999px;
-    width: 90%;
-    font-size: 1rem;
-    background: #f8fafc;
-    color: #334155;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.06);
-}
-
 .search-container {
     position: relative;
     width: 100%;
@@ -97,19 +42,46 @@
     border-radius: 12px;
     font-size: 0.875rem;
     transition: all 0.2s ease;
-    background: white;
+    background: rgba(241, 245, 249, 0.8);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .search-input:hover {
     border-color: rgba(59, 130, 246, 0.4);
+    background: white;
 }
 
 .search-input:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    background: white;
 }
 
+.search-clear-button {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.search-clear-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #64748b;
+}
+
+<<<<<<< HEAD
 .dropdown-icon {
     color: #64748b;
     transition: transform 0.2s ease;
@@ -137,9 +109,127 @@
 
 .dropdown-item span {
     font-size: 0.9rem;
+=======
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.user-profile-container {
+    position: relative;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    padding: 0.5rem 0.7rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.user-profile:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.profile-image-container {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f5f9;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dropdown-icon {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    overflow: hidden;
+    z-index: 10;
+    animation: fadeIn 0.2s ease;
+>>>>>>> 5ea39943aa1458b850ce99dac6ce03efd4e25247
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    color: #334155;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8fafc;
+}
+
+.dropdown-item:active {
+    background-color: #f1f5f9;
+}
+
+.dropdown-item .dropdown-icon {
+    color: #64748b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .dashboard-header {
+        left: 220px; /* Adjust for smaller sidebar width */
+    }
+}
+
+@media (max-width: 992px) {
+    .dashboard-header {
+        left: 0;
+    }
+    
+    .header-left {
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        padding: 0 1rem;
+    }
+    
+    .header-left {
+        max-width: 200px;
+    }
+    
+    .user-name {
+        display: none;
+    }
 } 

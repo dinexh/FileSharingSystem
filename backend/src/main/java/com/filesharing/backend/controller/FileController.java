@@ -21,6 +21,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StreamUtils;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.filesharing.backend.model.FileShare;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/files")
@@ -39,19 +43,51 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<File> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         System.out.println("Upload endpoint hit!");
-        File uploadedFile = fileService.uploadFile(file);
+        
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        File uploadedFile = fileService.uploadFile(file, userId);
         return ResponseEntity.ok(uploadedFile);
     }
 
     @GetMapping
     public ResponseEntity<List<File>> getAllFiles() {
-        List<File> files = fileService.getAllFiles();
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        List<File> files = fileService.getFilesByUserId(userId);
         return ResponseEntity.ok(files);
     }
     
     @GetMapping("/with-details")
     public ResponseEntity<List<Map<String, Object>>> getAllFilesWithDetails() {
-        List<Map<String, Object>> filesWithDetails = fileService.getAllFilesWithUserDetails();
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        // Use the method that adds star status to files
+        List<Map<String, Object>> filesWithDetails = fileService.getFilesWithUserDetailsByUserIdWithStars(userId);
         return ResponseEntity.ok(filesWithDetails);
     }
     
@@ -64,7 +100,28 @@ public class FileController {
     @GetMapping("/download/{fileId}")
     public void downloadFile(@PathVariable Long fileId, HttpServletResponse response) throws IOException {
         try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            String email = "";
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                userId = fileService.getUserIdByEmail(username);
+                email = username;
+            }
+            
             File file = fileService.getFileById(fileId);
+            
+            // Check if user has access to the file
+            boolean hasAccess = file.getUserId().equals(userId) || file.isPublic() ||
+                                fileService.hasAccessToFile(fileId, userId);
+            
+            if (!hasAccess) {
+                response.sendError(HttpStatus.FORBIDDEN.value(), "You don't have permission to access this file");
+                return;
+            }
+            
             Path filePath = Paths.get(file.getFilePath());
             java.io.File fileObject = filePath.toFile();
             
@@ -105,7 +162,23 @@ public class FileController {
     @GetMapping("/view/{fileId}")
     public void viewFile(@PathVariable Long fileId, HttpServletResponse response) throws IOException {
         try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                // Get user ID by username/email
+                userId = fileService.getUserIdByEmail(username);
+            }
+            
             File file = fileService.getFileById(fileId);
+            
+            // Check if user has access to the file
+            if (!file.getUserId().equals(userId) && !file.isPublic()) {
+                response.sendError(HttpStatus.FORBIDDEN.value(), "You don't have permission to access this file");
+                return;
+            }
             
             // For now we only support PDF viewing
             if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
@@ -149,8 +222,32 @@ public class FileController {
     }
 
     @GetMapping("/pdf/{fileId}")
-    public ResponseEntity<Resource> viewPdf(@PathVariable Long fileId) throws IOException {
+    public ResponseEntity<Resource> viewPdf(
+            @PathVariable Long fileId,
+            @RequestParam(value = "token", required = false) String tokenParam) throws IOException {
+        
+        // First, try to get current authenticated user from security context
+        Long userId = 1L; // Default
+        String userEmail = "";
+        
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            userId = fileService.getUserIdByEmail(username);
+            userEmail = username;
+        }
+        
+        // Get the file
         File file = fileService.getFileById(fileId);
+        
+        // Check if user has access to the file - include shared files in check
+        boolean hasAccess = file.getUserId().equals(userId) || 
+                          file.isPublic() || 
+                          fileService.hasAccessToFile(fileId, userId);
+        
+        if (!hasAccess) {
+            throw new IOException("You don't have permission to access this file");
+        }
         
         // Check if it's a PDF
         if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
@@ -183,5 +280,172 @@ public class FileController {
     public ResponseEntity<Void> deleteFile(@PathVariable Long fileId) throws IOException {
         fileService.deleteFile(fileId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/star/{fileId}")
+    public ResponseEntity<Map<String, Object>> starFile(@PathVariable Long fileId) {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        boolean starred = fileService.starFile(fileId, userId);
+        Map<String, Object> response = Map.of(
+            "success", true,
+            "fileId", fileId,
+            "starred", true,
+            "status", starred ? "STARRED" : "ALREADY_STARRED"
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @DeleteMapping("/star/{fileId}")
+    public ResponseEntity<Map<String, Object>> unstarFile(@PathVariable Long fileId) {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        boolean unstarred = fileService.unstarFile(fileId, userId);
+        Map<String, Object> response = Map.of(
+            "success", true,
+            "fileId", fileId,
+            "starred", false,
+            "status", unstarred ? "UNSTARRED" : "NOT_STARRED"
+        );
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/starred")
+    public ResponseEntity<List<Map<String, Object>>> getStarredFiles() {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            // Get user ID by username/email
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        List<Map<String, Object>> starredFiles = fileService.getStarredFilesWithDetailsByUserId(userId);
+        return ResponseEntity.ok(starredFiles);
+    }
+
+    @PostMapping("/share")
+    public ResponseEntity<?> shareFile(@RequestBody Map<String, Object> shareRequest) {
+        try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                userId = fileService.getUserIdByEmail(username);
+            }
+            
+            Long fileId = ((Number) shareRequest.get("fileId")).longValue();
+            String recipientEmail = (String) shareRequest.get("email");
+            
+            if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Recipient email is required"));
+            }
+            
+            // Extract canEdit parameter if provided
+            Boolean canEdit = shareRequest.get("canEdit") != null ? 
+                (Boolean) shareRequest.get("canEdit") : false;
+            
+            FileShare share = fileService.shareFileWithEmail(fileId, userId, recipientEmail, canEdit);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "File shared successfully with " + recipientEmail,
+                "shareId", share.getId()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @DeleteMapping("/share")
+    public ResponseEntity<?> unshareFile(@RequestBody Map<String, Object> unshareRequest) {
+        try {
+            // Get current authenticated user ID
+            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Long userId = 1L; // Default
+            
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails)principal).getUsername();
+                userId = fileService.getUserIdByEmail(username);
+            }
+            
+            Long fileId = ((Number) unshareRequest.get("fileId")).longValue();
+            String recipientEmail = (String) unshareRequest.get("email");
+            
+            if (recipientEmail == null || recipientEmail.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Recipient email is required"));
+            }
+            
+            boolean result = fileService.unshareFile(fileId, userId, recipientEmail);
+            
+            if (result) {
+                return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "File access revoked from " + recipientEmail
+                ));
+            } else {
+                return ResponseEntity.ok(Map.of(
+                    "success", false,
+                    "message", "File was not shared with " + recipientEmail
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/shared-with-me")
+    public ResponseEntity<List<Map<String, Object>>> getFilesSharedWithMe() {
+        // Get current authenticated user's email
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = "";
+        
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails)principal).getUsername(); // Email is used as username
+        }
+        
+        if (email.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+        
+        List<Map<String, Object>> sharedFiles = fileService.getFilesSharedWithEmail(email);
+        return ResponseEntity.ok(sharedFiles);
+    }
+    
+    @GetMapping("/shared-by-me")
+    public ResponseEntity<List<Map<String, Object>>> getFilesSharedByMe() {
+        // Get current authenticated user ID
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = 1L; // Default
+        
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails)principal).getUsername();
+            userId = fileService.getUserIdByEmail(username);
+        }
+        
+        List<Map<String, Object>> sharedFiles = fileService.getFilesSharedByUser(userId);
+        return ResponseEntity.ok(sharedFiles);
     }
 } 
