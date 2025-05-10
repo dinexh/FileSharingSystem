@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import './ProfileForm.css';
-import { FiCamera, FiMail, FiUser, FiLock } from 'react-icons/fi';
+import { FiCamera, FiMail, FiUser, FiLock, FiEdit, FiShield, FiSave, FiCheck } from 'react-icons/fi';
 import defaultAvatar from '../../assets/default-avatar.svg';
 
 const ProfileForm = ({ initialProfile, onSave, onSavePassword, loading, loadingPassword }) => {
@@ -133,54 +133,10 @@ const ProfileForm = ({ initialProfile, onSave, onSavePassword, loading, loadingP
         setConfirmPassword('');
     };
 
+    const passwordsMatch = password && confirmPassword && password === confirmPassword;
+
     return (
         <div className="profile-container">
-            <div className="profile-header">
-                <div className="profile-image-section">
-                    <div className="profile-avatar">
-                        {previewUrl ? (
-                            <img 
-                                src={getProfileImageUrl(previewUrl)} 
-                                alt="Profile" 
-                                onError={(e) => {
-                                    e.target.onerror = null;
-                                    e.target.src = defaultAvatar;
-                                }}
-                            />
-                        ) : (
-                            <div className="profile-avatar-placeholder">
-                                <FiUser size={40} />
-                            </div>
-                        )}
-                        <button 
-                            type="button" 
-                            className="avatar-upload-btn"
-                            onClick={handleSelectFile}
-                        >
-                            <FiCamera size={18} />
-                        </button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: 'none' }}
-                            onChange={handleFileChange}
-                            accept="image/*"
-                        />
-                    </div>
-                    {isUploading && (
-                        <div className="upload-progress-container">
-                            <div className="upload-progress-bar">
-                                <div 
-                                    className="upload-progress-fill"
-                                    style={{ width: `${uploadProgress}%` }}
-                                ></div>
-                            </div>
-                            <div className="upload-progress-text">{uploadProgress}%</div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
             <div className="profile-content">
                 <div className="profile-card">
                     <div className="card-header">
@@ -189,85 +145,162 @@ const ProfileForm = ({ initialProfile, onSave, onSavePassword, loading, loadingP
                     </div>
                     
                     <form className="profile-form" onSubmit={handleProfileSubmit}>
-                        <div className="form-group">
-                            <label>
-                                {/* <FiMail className="input-icon" /> */}
-                                <span>Email</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={initialProfile.email || ''}
-                                readOnly
-                                className="readonly-input"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>
-                                {/* <FiUser className="input-icon" /> */}
-                                <span>Full Name</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={fullName}
-                                onChange={e => setFullName(e.target.value)}
-                                required
-                                placeholder="Your full name"
-                            />
+                        <div className="profile-layout">
+                            <div className="profile-image-section">
+                                <div className="profile-avatar">
+                                    {previewUrl ? (
+                                        <img 
+                                            src={getProfileImageUrl(previewUrl)} 
+                                            alt="Profile" 
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = defaultAvatar;
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="profile-avatar-placeholder">
+                                            <FiUser size={40} />
+                                        </div>
+                                    )}
+                                    <button 
+                                        type="button" 
+                                        className="avatar-upload-btn"
+                                        onClick={handleSelectFile}
+                                        title="Change profile picture"
+                                    >
+                                        <FiCamera size={16} />
+                                    </button>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange}
+                                        accept="image/*"
+                                    />
+                                </div>
+                                {isUploading && (
+                                    <div className="upload-progress-container">
+                                        <div className="upload-progress-bar">
+                                            <div 
+                                                className="upload-progress-fill"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                        <div className="upload-progress-text">{uploadProgress}%</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="profile-field-group">
+                                <div className="profile-field">
+                                    <label className="profile-field-label">
+                                        <FiMail className="field-icon" />
+                                        Email
+                                    </label>
+                                    <div className="profile-field-value">
+                                        <span>{initialProfile.email || ''}</span>
+                                        <small className="field-hint">Email cannot be changed</small>
+                                    </div>
+                                </div>
+                                
+                                <div className="profile-field">
+                                    <label className="profile-field-label">
+                                        <FiEdit className="field-icon" />
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={fullName}
+                                        onChange={e => setFullName(e.target.value)}
+                                        required
+                                        placeholder="Your full name"
+                                        className="profile-field-input"
+                                    />
+                                    <small className="field-hint">Enter your first and last name</small>
+                                </div>
+                            </div>
                         </div>
                         
                         {error && <div className="form-error">{error}</div>}
                         
-                        <button 
-                            type="submit" 
-                            className="profile-save-btn" 
-                            disabled={loading || isUploading}
-                        >
-                            {loading ? 'Saving...' : 'Save Profile'}
-                        </button>
+                        <div className="action-buttons">
+                            <button 
+                                type="submit" 
+                                className="profile-save-btn" 
+                                disabled={loading || isUploading}
+                            >
+                                {loading ? (
+                                    <span className="btn-loader"></span>
+                                ) : (
+                                    <FiSave className="btn-icon" />
+                                )}
+                                {loading ? 'Saving...' : 'Save Profile Changes'}
+                            </button>
+                        </div>
                     </form>
                 </div>
                 
                 <div className="profile-card">
                     <div className="card-header">
-                        <FiLock className="card-icon" />
+                        <FiShield className="card-icon" />
                         <h3>Security</h3>
                     </div>
                     
                     <form className="profile-form" onSubmit={handlePasswordSubmit}>
-                        <div className="form-group">
-                            <label>
-                                {/* <FiLock className="input-icon" /> */}
-                                <span>New Password</span>
-                            </label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="Enter new password"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>
-                                {/* <FiLock className="input-icon" /> */}
-                                <span>Confirm Password</span>
-                            </label>
-                            <input
-                                type="password"
-                                value={confirmPassword}
-                                onChange={e => setConfirmPassword(e.target.value)}
-                                placeholder="Confirm new password"
-                            />
+                        <div className="profile-field-group">
+                            <div className="profile-field">
+                                <label className="profile-field-label">
+                                    <FiLock className="field-icon" />
+                                    New Password
+                                </label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    placeholder="Enter new password"
+                                    className="profile-field-input"
+                                />
+                                <small className="field-hint">Must be at least 8 characters</small>
+                            </div>
+                            
+                            <div className="profile-field">
+                                <label className="profile-field-label">
+                                    <FiLock className="field-icon" />
+                                    Confirm Password
+                                </label>
+                                <div className="confirm-password-wrapper">
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={e => setConfirmPassword(e.target.value)}
+                                        placeholder="Confirm new password"
+                                        className="profile-field-input"
+                                    />
+                                    {confirmPassword && (
+                                        <div className={`password-match ${passwordsMatch ? 'match' : 'no-match'}`}>
+                                            {passwordsMatch ? <FiCheck /> : '✕'}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                         
                         {passwordError && <div className="form-error">{passwordError}</div>}
                         
-                        <button 
-                            type="submit" 
-                            className="profile-save-btn" 
-                            disabled={loadingPassword || !password || !confirmPassword}
-                        >
-                            {loadingPassword ? 'Updating...' : 'Update Password'}
-                        </button>
+                        <div className="action-buttons">
+                            <button 
+                                type="submit" 
+                                className="profile-save-btn" 
+                                disabled={loadingPassword || !password || !confirmPassword || password !== confirmPassword}
+                            >
+                                {loadingPassword ? (
+                                    <span className="btn-loader"></span>
+                                ) : (
+                                    <FiLock className="btn-icon" />
+                                )}
+                                {loadingPassword ? 'Updating...' : 'Update Password'}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

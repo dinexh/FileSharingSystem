@@ -141,8 +141,12 @@ public class FileController {
             response.setContentType(file.getFileType());
             response.setContentLengthLong(fileObject.length());
             
-            // Determine if we should display inline (for PDFs) or as attachment (for other files)
-            if (file.getFileType() != null && file.getFileType().equals("application/pdf")) {
+            // Determine if we should display inline (for images and PDFs) or as attachment (for other files)
+            boolean isInlineViewable = file.getFileType() != null && 
+                (file.getFileType().equals("application/pdf") || 
+                 file.getFileType().startsWith("image/"));
+            
+            if (isInlineViewable) {
                 response.setHeader("Content-Disposition", "inline; filename=\"" + file.getOriginalFileName() + "\"");
             } else {
                 response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getOriginalFileName() + "\"");
@@ -180,9 +184,13 @@ public class FileController {
                 return;
             }
             
-            // For now we only support PDF viewing
-            if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
-                response.sendError(HttpStatus.BAD_REQUEST.value(), "Only PDF files can be viewed");
+            // Check if the file is viewable (PDF or image)
+            boolean isViewable = file.getFileType() != null && 
+                (file.getFileType().equals("application/pdf") || 
+                 file.getFileType().startsWith("image/"));
+                
+            if (!isViewable) {
+                response.sendError(HttpStatus.BAD_REQUEST.value(), "Only PDF and image files can be viewed");
                 return;
             }
             
@@ -195,7 +203,7 @@ public class FileController {
             }
             
             // Set headers for in-browser viewing (iframe-friendly)
-            response.setHeader("Content-Type", "application/pdf");
+            response.setHeader("Content-Type", file.getFileType());
             response.setHeader("Content-Disposition", "inline; filename=\"" + file.getOriginalFileName() + "\"");
             response.setHeader("Cache-Control", "public, max-age=86400");
             
@@ -249,8 +257,12 @@ public class FileController {
             throw new IOException("You don't have permission to access this file");
         }
         
-        // Check if it's a PDF
-        if (file.getFileType() == null || !file.getFileType().equals("application/pdf")) {
+        // Check if it's a PDF or image
+        boolean isPdfOrImage = file.getFileType() != null && 
+            (file.getFileType().equals("application/pdf") || 
+             file.getFileType().startsWith("image/"));
+         
+        if (!isPdfOrImage) {
             return ResponseEntity.badRequest().build();
         }
         
@@ -258,10 +270,10 @@ public class FileController {
         Resource resource = new UrlResource(filePath.toUri());
         
         if (!resource.exists()) {
-            throw new IOException("PDF file not found: " + file.getOriginalFileName());
+            throw new IOException("File not found: " + file.getOriginalFileName());
         }
         
-        // Create headers with CORS settings specifically for PDF viewing
+        // Create headers with CORS settings specifically for viewing
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getOriginalFileName() + "\"");
         headers.add(HttpHeaders.CACHE_CONTROL, "max-age=3600");
@@ -270,9 +282,18 @@ public class FileController {
         headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
         headers.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "3600");
         
+        // Use the file's content type
+        MediaType mediaType;
+        if (file.getFileType().equals("application/pdf")) {
+            mediaType = MediaType.APPLICATION_PDF;
+        } else {
+            // For images, use the appropriate media type
+            mediaType = MediaType.parseMediaType(file.getFileType());
+        }
+        
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
+                .contentType(mediaType)
                 .body(resource);
     }
 
