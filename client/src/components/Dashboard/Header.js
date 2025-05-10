@@ -1,7 +1,8 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import defaultAvatar from '../../assets/default-avatar.svg';
-import './Header.css';
+import './Header.css'
+
 
 const Header = ({ userName, userProfileImage }) => {
     const { logout } = useAuth();
