@@ -1,13 +1,71 @@
 import { useState } from 'react';
 import { FiMail, FiLock, FiUser, FiCloud, FiUploadCloud, FiShare2, FiShield, FiFolder } from 'react-icons/fi';
 import { FaGoogle, FaGithub } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import './page.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Auth = () => {
     const [isSignIn, setIsSignIn] = useState(true);
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const toggleMode = () => {
         setIsSignIn(!isSignIn);
+        setError("");
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
+        try {
+            if (isSignIn) {
+                // Login
+                const res = await fetch("http://localhost:8080/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem("token", data.accessToken);
+                    toast.success("Login successful!");
+                    navigate("/dashboard");
+                } else {
+                    const errorMessage = data.message || "Login failed";
+                    setError(errorMessage);
+                    toast.error(errorMessage);
+                }
+            } else {
+                // Register
+                const res = await fetch("http://localhost:8080/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setIsSignIn(true);
+                    toast.success("Registration successful! Please log in.");
+                } else {
+                    const errorMessage = data.message || "Registration failed";
+                    setError(errorMessage);
+                    toast.error(errorMessage);
+                }
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+            toast.error("Incorrect email or password.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -53,12 +111,8 @@ const Auth = () => {
                             <FaGoogle className="social-icon" />
                             Google
                         </button>
-                        <button className="social-button">
-                            <FaGithub className="social-icon" />
-                            GitHub
-                        </button>
                     </div>
-                    <form className="auth-form">
+                    <form className="auth-form" onSubmit={handleSubmit}>
                         {!isSignIn && (
                             <div className="form-group">
                                 <div className="input-icon-wrapper">
@@ -67,6 +121,9 @@ const Auth = () => {
                                         type="text"
                                         placeholder="Full Name"
                                         className="auth-input"
+                                        value={fullName}
+                                        onChange={e => setFullName(e.target.value)}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -79,6 +136,9 @@ const Auth = () => {
                                     type="email"
                                     placeholder="Email Address"
                                     className="auth-input"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -90,6 +150,9 @@ const Auth = () => {
                                     type="password"
                                     placeholder="Password"
                                     className="auth-input"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -104,8 +167,10 @@ const Auth = () => {
                             </div>
                         )}
 
-                        <button type="submit" className="auth-button">
-                            {isSignIn ? "Sign In" : "Create Account"}
+                        {error && <div className="auth-error">{error}</div>}
+
+                        <button type="submit" className="auth-button" disabled={loading}>
+                            {loading ? "Loading..." : isSignIn ? "Sign In" : "Create Account"}
                         </button>
                     </form>
 
@@ -119,6 +184,7 @@ const Auth = () => {
                     </p>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };
