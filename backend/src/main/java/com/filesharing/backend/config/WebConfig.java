@@ -14,9 +14,11 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .exposedHeaders("Content-Disposition", "Content-Type", "Content-Length", "X-Frame-Options")
+                        .allowCredentials(true)
+                        .maxAge(3600);
             }
         };
     }

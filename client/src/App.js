@@ -6,6 +6,7 @@ import Dashboard from './(pages)/dashboard/page';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import ProfilePage from './(pages)/dashboard/profile';
 import UploadPage from './(pages)/dashboard/upload';
+import FilesPage from './(pages)/dashboard/files';
 import { AuthProvider } from './context/AuthContext';
 import './App.css';
 
@@ -29,10 +30,8 @@ function App() {
           >
             <Route path="upload" element={<UploadPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="files" element={<FilesPage />} />
           </Route>
-
-
-          {/* Catch all route - redirect to landing page */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
