@@ -9,54 +9,65 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Check for token and user data on mount
-        const token = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('user');
-        
-        if (token && savedUser) {
-            try {
-                const userData = JSON.parse(savedUser);
-                setIsAuthenticated(true);
+    // Helper to fetch user profile from backend
+    const fetchUserProfile = async (token) => {
+        try {
+            const res = await fetch('http://localhost:8080/api/users/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                const userData = await res.json();
                 setUser(userData);
-            } catch (error) {
-                // If there's an error parsing the user data, clear everything
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
+                localStorage.setItem('user', JSON.stringify(userData));
+                setIsAuthenticated(true);
+            } else {
                 setIsAuthenticated(false);
                 setUser(null);
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
             }
-        }
-        setLoading(false);
-    }, []);
-
-    const login = (userData, token) => {
-        try {
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(userData));
-            setIsAuthenticated(true);
-            setUser(userData);
-            navigate('/dashboard');
         } catch (error) {
-            console.error('Error during login:', error);
-            // Clear any partial data
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
             setIsAuthenticated(false);
             setUser(null);
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
         }
     };
 
-    const logout = () => {
-        try {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setIsAuthenticated(false);
-            setUser(null);
-            navigate('/');
-        } catch (error) {
-            console.error('Error during logout:', error);
+    useEffect(() => {
+        // On mount, check for token and fetch user profile from backend
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetchUserProfile(token).finally(() => setLoading(false));
+        } else {
+            setLoading(false);
         }
+    }, []);
+
+    const login = async (userDataOrToken, tokenMaybe) => {
+        // login(userData, token) or login(token)
+        let token, userData;
+        if (tokenMaybe) {
+            // login(userData, token)
+            token = tokenMaybe;
+            userData = userDataOrToken;
+        } else {
+            // login(token)
+            token = userDataOrToken;
+        }
+        localStorage.setItem('token', token);
+        await fetchUserProfile(token);
+        navigate('/dashboard');
+    };
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setIsAuthenticated(false);
+        setUser(null);
+        navigate('/');
     };
 
     // Don't render children until initial auth check is complete
