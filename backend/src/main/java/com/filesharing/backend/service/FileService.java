@@ -3,9 +3,11 @@ package com.filesharing.backend.service;
 import com.filesharing.backend.model.File;
 import com.filesharing.backend.model.StarredFile;
 import com.filesharing.backend.model.User;
+import com.filesharing.backend.model.FileShare;
 import com.filesharing.backend.repository.FileRepository;
 import com.filesharing.backend.repository.StarredFileRepository;
 import com.filesharing.backend.repository.UserRepository;
+import com.filesharing.backend.repository.FileShareRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 public class FileService {
@@ -30,11 +33,13 @@ public class FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
     private final StarredFileRepository starredFileRepository;
+    private final FileShareRepository fileShareRepository;
 
-    public FileService(FileRepository fileRepository, UserRepository userRepository, StarredFileRepository starredFileRepository) {
+    public FileService(FileRepository fileRepository, UserRepository userRepository, StarredFileRepository starredFileRepository, FileShareRepository fileShareRepository) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.starredFileRepository = starredFileRepository;
+        this.fileShareRepository = fileShareRepository;
         System.out.println("FileService initialized with uploadDir: " + uploadDir);
     }
 
@@ -333,5 +338,193 @@ public class FileService {
     public List<Map<String, Object>> getFilesWithUserDetailsByUserIdWithStars(Long userId) {
         List<Map<String, Object>> filesWithDetails = getFilesWithUserDetailsByUserId(userId);
         return addStarStatusToFiles(filesWithDetails, userId);
+    }
+
+    /**
+     * Share a file with a user by email (default: read-only access)
+     */
+    public FileShare shareFileWithEmail(Long fileId, Long ownerUserId, String recipientEmail) {
+        return shareFileWithEmail(fileId, ownerUserId, recipientEmail, false);
+    }
+    
+    /**
+     * Share a file with a user by email with specified edit permissions
+     * @param fileId the ID of the file to share
+     * @param ownerUserId the ID of the file owner
+     * @param recipientEmail the email of the recipient
+     * @param canEdit whether the recipient can edit the file
+     * @return the created FileShare object
+     */
+    public FileShare shareFileWithEmail(Long fileId, Long ownerUserId, String recipientEmail, boolean canEdit) {
+        // Check if file exists and belongs to the owner
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found with id: " + fileId));
+        
+        if (!file.getOwnerId().equals(ownerUserId)) {
+            throw new RuntimeException("You don't have permission to share this file");
+        }
+        
+        // Check if already shared with this email
+        if (fileShareRepository.existsByFileIdAndSharedWithEmailAndIsActiveTrue(fileId, recipientEmail)) {
+            throw new RuntimeException("File already shared with this email");
+        }
+        
+        // Create new share
+        FileShare fileShare = new FileShare(fileId, ownerUserId, recipientEmail);
+        fileShare.setCanEdit(canEdit);
+        
+        // Check if recipient has an account
+        Optional<User> recipientOpt = userRepository.findByEmail(recipientEmail);
+        if (recipientOpt.isPresent()) {
+            fileShare.setSharedWithId(recipientOpt.get().getId());
+        }
+        
+        // Generate an access link
+        String accessToken = UUID.randomUUID().toString();
+        fileShare.setAccessLink("/shared/access/" + accessToken);
+        
+        return fileShareRepository.save(fileShare);
+    }
+    
+    /**
+     * Unshare a file with a user
+     * @param fileId the ID of the file to unshare
+     * @param ownerUserId the ID of the file owner
+     * @param recipientEmail the email of the user to unshare with
+     * @return true if successful
+     */
+    public boolean unshareFile(Long fileId, Long ownerUserId, String recipientEmail) {
+        // Check if file exists and belongs to the owner
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found with id: " + fileId));
+        
+        if (!file.getOwnerId().equals(ownerUserId)) {
+            throw new RuntimeException("You don't have permission to manage sharing for this file");
+        }
+        
+        FileShare fileShare = fileShareRepository.findByFileIdAndSharedWithEmailAndIsActiveTrue(fileId, recipientEmail);
+        if (fileShare == null) {
+            return false; // Not shared with this email
+        }
+        
+        // Set inactive instead of deleting
+        fileShare.setActive(false);
+        fileShareRepository.save(fileShare);
+        return true;
+    }
+    
+    /**
+     * Get files shared with a user by email
+     * @param email the email of the user
+     * @return list of files shared with the user
+     */
+    public List<Map<String, Object>> getFilesSharedWithEmail(String email) {
+        List<FileShare> fileShares = fileShareRepository.findBySharedWithEmailAndIsActiveTrue(email);
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        for (FileShare share : fileShares) {
+            try {
+                File file = fileRepository.findById(share.getFileId()).orElse(null);
+                if (file != null) {
+                    Map<String, Object> fileDetails = new java.util.HashMap<>();
+                    fileDetails.put("id", file.getId());
+                    fileDetails.put("fileName", file.getFileName());
+                    fileDetails.put("originalName", file.getOriginalName());
+                    fileDetails.put("fileSize", file.getFileSize());
+                    fileDetails.put("fileType", file.getFileType());
+                    fileDetails.put("uploadDate", file.getUploadDate());
+                    fileDetails.put("isPublic", file.isPublic());
+                    fileDetails.put("sharedDate", share.getSharedDate());
+                    fileDetails.put("permissionLevel", share.getPermissionLevel());
+                    fileDetails.put("canEdit", share.isCanEdit());
+                    
+                    // Add owner info
+                    Optional<User> ownerOpt = userRepository.findById(share.getOwnerId());
+                    if (ownerOpt.isPresent()) {
+                        User owner = ownerOpt.get();
+                        fileDetails.put("ownerName", owner.getFullName());
+                        fileDetails.put("ownerEmail", owner.getEmail());
+                        fileDetails.put("ownerProfileImage", owner.getProfileImageUrl());
+                    } else {
+                        fileDetails.put("ownerName", "Unknown User");
+                        fileDetails.put("ownerEmail", "");
+                        fileDetails.put("ownerProfileImage", "");
+                    }
+                    
+                    result.add(fileDetails);
+                }
+            } catch (Exception e) {
+                System.err.println("Error processing shared file: " + e.getMessage());
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Get files shared by a user
+     * @param userId the ID of the user
+     * @return list of files shared by the user with recipient details
+     */
+    public List<Map<String, Object>> getFilesSharedByUser(Long userId) {
+        List<FileShare> fileShares = fileShareRepository.findByOwnerIdAndIsActiveTrue(userId);
+        List<Map<String, Object>> result = new ArrayList<>();
+        
+        for (FileShare share : fileShares) {
+            try {
+                File file = fileRepository.findById(share.getFileId()).orElse(null);
+                if (file != null) {
+                    Map<String, Object> shareDetails = new java.util.HashMap<>();
+                    shareDetails.put("fileId", file.getId());
+                    shareDetails.put("fileName", file.getFileName());
+                    shareDetails.put("originalName", file.getOriginalName());
+                    shareDetails.put("fileSize", file.getFileSize());
+                    shareDetails.put("fileType", file.getFileType());
+                    shareDetails.put("sharedWithEmail", share.getSharedWithEmail());
+                    shareDetails.put("sharedDate", share.getSharedDate());
+                    shareDetails.put("permissionLevel", share.getPermissionLevel());
+                    shareDetails.put("canEdit", share.isCanEdit());
+                    
+                    // Get recipient details if they have an account
+                    if (share.getSharedWithId() != null) {
+                        Optional<User> recipientOpt = userRepository.findById(share.getSharedWithId());
+                        if (recipientOpt.isPresent()) {
+                            User recipient = recipientOpt.get();
+                            shareDetails.put("recipientName", recipient.getFullName());
+                            shareDetails.put("recipientProfileImage", recipient.getProfileImageUrl());
+                        }
+                    }
+                    
+                    result.add(shareDetails);
+                }
+            } catch (Exception e) {
+                System.err.println("Error processing shared file: " + e.getMessage());
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Check if a user has access to a file
+     * @param fileId the ID of the file
+     * @param userId the ID of the user
+     * @return true if the user has access to the file
+     */
+    public boolean hasAccessToFile(Long fileId, Long userId) {
+        // Check if user is the owner
+        File file = fileRepository.findById(fileId).orElse(null);
+        if (file != null && file.getOwnerId().equals(userId)) {
+            return true;
+        }
+        
+        // Check if file is shared with the user
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return fileShareRepository.existsByFileIdAndSharedWithEmailAndIsActiveTrue(fileId, user.getEmail());
+        }
+        
+        return false;
     }
 } 

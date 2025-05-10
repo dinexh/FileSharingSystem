@@ -44,26 +44,38 @@ export const getFileBlob = async (file) => {
  */
 export const viewFileInNewTab = (file) => {
     if (!file) return;
-    // Create a temporary URL with the token
+    // Generate a URL for viewing the file
     const url = getFileUrl(file);
     
-    // For security reasons, we can't directly include Authorization headers when opening a new tab
-    // But we can use a workaround to create a temporary form and submit it
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = url;
-    form.target = '_blank';
+    // For PDFs and images, we can use a more direct approach
+    if (file.fileType === 'application/pdf') {
+        // For PDFs, use the specialized PDF viewing endpoint
+        const pdfViewUrl = `http://localhost:8080/api/files/pdf/${file.id}`;
+        
+        // Open in a new tab
+        window.open(pdfViewUrl, '_blank');
+        return;
+    }
     
-    // Add token as a hidden field
-    const tokenField = document.createElement('input');
-    tokenField.type = 'hidden';
-    tokenField.name = 'token';
-    tokenField.value = localStorage.getItem('token') || '';
-    form.appendChild(tokenField);
+    // For other file types, open the raw file for download
+    const token = localStorage.getItem('token');
     
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    // Create a temporary hidden iframe to handle the authenticated request
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        // Create an object URL for the blob
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        // Open in a new tab
+        window.open(blobUrl, '_blank');
+    })
+    .catch(error => console.error('Error viewing file:', error));
 };
 
 /**

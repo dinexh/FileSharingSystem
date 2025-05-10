@@ -98,6 +98,38 @@
     position: relative;
 }
 
+/* Table header widths and ordering */
+.files-table th:nth-child(1) {  /* Name */
+    min-width: 220px;
+    max-width: 250px;
+}
+
+.files-table th:nth-child(2) {  /* Size */
+    width: 100px;
+}
+
+.files-table th:nth-child(3) {  /* Owner */
+    width: 150px;
+}
+
+.files-table th:nth-child(4) {  /* Access */
+    width: 100px;
+}
+
+.files-table th:nth-child(5) {  /* Type */
+    width: 60px;
+}
+
+.files-table th:nth-child(6) {  /* Shared */
+    width: 80px;
+    text-align: center;
+}
+
+.files-table th:nth-child(7) {  /* Actions */
+    width: 150px;
+    text-align: center;
+}
+
 .files-table th:hover {
     background-color: #dbeafe;
 }
@@ -122,18 +154,20 @@
 
 /* File Type Cell */
 .file-type-cell {
-    width: 60px;
-    text-align: center;
+    width: 10px;
+    padding-left: 2px;
+    padding-right: 0;
+    max-width: 10px;
 }
 
 .file-icon {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     display: inline-block;
 }
 
 /* File Name Cell */
 .file-name-cell {
-    max-width: 250px;
+    max-width: 200px;
 }
 
 .file-name {
@@ -210,45 +244,43 @@
 
 /* Action Buttons */
 .actions-cell {
-    width: 120px;
-    text-align: center;
+    width: 150px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 5px;
 }
 
 .file-action-btn {
     background: none;
     border: none;
-    font-size: 1.1rem;
-    color: #6b7280;
+    margin: 0;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 4px;
-    transition: all 0.2s;
-    margin: 0 0.2rem;
+    color: #666;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-action-btn svg {
+    stroke-width: 2px;
 }
 
 .file-action-btn:hover {
     background-color: #f0f7ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.file-action-btn.download:hover {
-    color: #3b82f6;
-}
-
-.file-action-btn.share:hover {
-    color: #8b5cf6;
-}
-
-.file-action-btn.view:hover {
-    color: #10b981;
-}
-
-.file-action-btn.delete:hover {
-    color: #ef4444;
-    background-color: #fee2e2;
-}
-
+/* Specific buttons */
 .file-action-btn.star {
-    transition: all 0.2s;
+    color: #f59e0b;
 }
 
 .file-action-btn.star.starred {
@@ -262,6 +294,24 @@
 
 .file-action-btn.star:hover {
     color: #f59e0b;
+}
+
+.file-action-btn.view {
+    color: #10b981;
+}
+
+.file-action-btn.view:hover {
+    color: #10b981;
+    background-color: #ecfdf5;
+}
+
+.file-action-btn.delete {
+    color: #ef4444;
+}
+
+.file-action-btn.delete:hover {
+    color: #ef4444;
+    background-color: #fee2e2;
 }
 
 /* Loading State */
@@ -351,10 +401,14 @@
         padding: 0.8rem;
     }
     
+    .actions-cell {
+        width: 170px;
+    }
+    
     .file-action-btn {
-        padding: 0.3rem;
-        font-size: 1rem;
-        margin: 0 0.1rem;
+        width: 30px;
+        height: 30px;
+        padding: 5px;
     }
 }
 
@@ -382,6 +436,10 @@
     .files-table th:nth-child(5), 
     .files-table td:nth-child(5) {
         display: none;
+    }
+    
+    .actions-cell {
+        width: 150px;
     }
 }
 

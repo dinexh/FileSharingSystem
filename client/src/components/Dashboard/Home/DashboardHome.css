@@ -192,8 +192,39 @@
     color: #3b82f6;
 }
 
-@media (max-width: 1200px) {
+/* Mobile-first responsive adjustments */
+@media (max-width: 1024px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .dashboard-col-side {
+        order: -1; /* Show storage widget first on mobile */
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-home {
+        padding-bottom: 1rem;
+    }
+    
+    .dashboard-grid {
+        gap: 1rem;
+    }
+    
+    .dashboard-col {
+        gap: 1rem;
+    }
+    
+    .widget-header {
+        padding: 1rem;
+    }
+    
+    .widget-title {
+        font-size: 1rem;
+    }
+    
+    .empty-state {
+        padding: 2rem 1rem;
     }
 } 

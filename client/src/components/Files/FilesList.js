@@ -4,6 +4,7 @@ import { FiDownload, FiTrash2, FiEye, FiLock, FiUnlock, FiFilter, FiX, FiStar, F
 import { toast } from 'react-toastify';
 import PDFViewer from './PDFViewer';
 import { downloadFile, viewFileInNewTab } from '../../utils/fileUtils';
+import ShareModal from './ShareModal';
 
 const FilesList = () => {
     const [files, setFiles] = useState([]);
@@ -14,6 +15,7 @@ const FilesList = () => {
     const [fileTypeFilter, setFileTypeFilter] = useState('all');
     const [viewingFile, setViewingFile] = useState(null);
     const [starredFiles, setStarredFiles] = useState([]);
+    const [sharingFile, setSharingFile] = useState(null);
 
     useEffect(() => {
         fetchFiles();
@@ -276,8 +278,16 @@ const FilesList = () => {
     };
 
     const handleShare = (file) => {
-        // For now, just show a toast - full share functionality will be implemented later
-        toast.info('Share functionality coming soon!');
+        setSharingFile(file);
+    };
+
+    const handleCloseShareModal = () => {
+        setSharingFile(null);
+    };
+
+    const handleShareSuccess = () => {
+        // Refresh the file list after sharing
+        fetchFiles();
     };
 
     if (loading) {
@@ -331,6 +341,14 @@ const FilesList = () => {
                 </div>
             )}
 
+            {sharingFile && (
+                <ShareModal 
+                    file={sharingFile}
+                    onClose={handleCloseShareModal}
+                    onShareSuccess={handleShareSuccess}
+                />
+            )}
+
             <div className="files-list-container">
                 <div className="files-toolbar">
                     <div className="files-filter">
@@ -357,7 +375,6 @@ const FilesList = () => {
                     <table className="files-table">
                         <thead>
                             <tr>
-                                <th>Type</th>
                                 <th onClick={() => handleSort('originalName')} className={sortField === 'originalName' ? `sorted ${sortDirection}` : ''}>
                                     File Name
                                     {sortField === 'originalName' && <span className="sort-arrow">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
@@ -366,29 +383,23 @@ const FilesList = () => {
                                     Size
                                     {sortField === 'fileSize' && <span className="sort-arrow">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
                                 </th>
-                                <th onClick={() => handleSort('uploadDate')} className={sortField === 'uploadDate' ? `sorted ${sortDirection}` : ''}>
-                                    Upload Date
-                                    {sortField === 'uploadDate' && <span className="sort-arrow">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
-                                </th>
                                 <th onClick={() => handleSort('ownerName')} className={sortField === 'ownerName' ? `sorted ${sortDirection}` : ''}>
                                     Owner
                                     {sortField === 'ownerName' && <span className="sort-arrow">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
                                 </th>
                                 <th>Access</th>
+                                <th>Type</th>
+                                <th>Shared</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredFiles.map((file) => (
                                 <tr key={file.id}>
-                                    <td className="file-type-cell">
-                                        <span className="file-icon">{getFileIcon(file.fileType)}</span>
-                                    </td>
                                     <td className="file-name-cell">
                                         <span className="file-name">{file.originalName}</span>
                                     </td>
                                     <td>{formatFileSize(file.fileSize)}</td>
-                                    <td>{formatDate(file.uploadDate)}</td>
                                     <td className="owner-cell">
                                         <div className="owner-info">
                                             <span>{file.ownerName}</span>
@@ -405,6 +416,20 @@ const FilesList = () => {
                                             </span>
                                         )}
                                     </td>
+                                    <td className="file-type-cell">
+                                        <span className="file-icon">{getFileIcon(file.fileType)}</span>
+                                    </td>
+                                    <td className="shared-cell">
+                                        {/* Placeholder for shared status, 
+                                            will be replaced with actual shared status indicator */}
+                                        <button 
+                                            className="file-action-btn share" 
+                                            title="Share"
+                                            onClick={() => handleShare(file)}
+                                        >
+                                            <FiShare2 />
+                                        </button>
+                                    </td>
                                     <td className="actions-cell">
                                         <button 
                                             className={`file-action-btn star ${starredFiles.includes(file.id) ? 'starred' : ''}`}
@@ -419,20 +444,6 @@ const FilesList = () => {
                                             onClick={() => handleViewFile(file)}
                                         >
                                             <FiEye />
-                                        </button>
-                                        <button 
-                                            className="file-action-btn download" 
-                                            title="Download"
-                                            onClick={() => handleDownload(file)}
-                                        >
-                                            <FiDownload />
-                                        </button>
-                                        <button 
-                                            className="file-action-btn share" 
-                                            title="Share"
-                                            onClick={() => handleShare(file)}
-                                        >
-                                            <FiShare2 />
                                         </button>
                                         <button 
                                             className="file-action-btn delete" 

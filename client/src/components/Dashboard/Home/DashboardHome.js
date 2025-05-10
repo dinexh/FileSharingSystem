@@ -4,6 +4,7 @@ import { FiFileText, FiExternalLink, FiPlus, FiClock, FiStar, FiDownload, FiEye,
 import StorageOverview from './StorageOverview';
 import RecentFiles from './RecentFiles';
 import QuickActions from './QuickActions';
+import SharedFilesWidget from './SharedFilesWidget';
 import './DashboardHome.css';
 import { downloadFile } from '../../../utils/fileUtils';
 
@@ -184,6 +185,17 @@ const DashboardHome = () => {
                             files={recentFiles} 
                             isLoading={isLoading} 
                         />
+                    </div>
+                    
+                    <div className="dashboard-widget">
+                        <div className="widget-header">
+                            <h2 className="widget-title">Shared With Me</h2>
+                            <Link to="/dashboard/shared" className="widget-link">
+                                View All <FiExternalLink size={14} />
+                            </Link>
+                        </div>
+                        
+                        <SharedFilesWidget />
                     </div>
                 </div>
                 
