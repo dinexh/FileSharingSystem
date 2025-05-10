@@ -98,30 +98,6 @@ const SettingsPage = () => {
 
             {/* Language and Notification Settings Grid */}
             <div className="settings-grid">
-                {/* Language Settings */}
-                <div className="settings-section">
-                    <h2><FiGlobe /> Language</h2>
-                    <div className="settings-content">
-                        <div className="language-selector">
-                            <div className="language-icon">
-                                <FiGlobe />
-                            </div>
-                            <select 
-                                value={language} 
-                                onChange={handleLanguageChange}
-                                className="language-select"
-                            >
-                                <option value="english">English</option>
-                                <option value="spanish">Español</option>
-                                <option value="french">Français</option>
-                                <option value="german">Deutsch</option>
-                                <option value="chinese">中文</option>
-                                <option value="japanese">日本語</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Notification Settings */}
                 <div className="settings-section">
                     <h2><FiBell /> Notifications</h2>
