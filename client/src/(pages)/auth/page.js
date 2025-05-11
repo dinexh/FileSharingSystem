@@ -111,10 +111,6 @@ const Auth = () => {
                     </div>
 
                     <div className="social-buttons">
-                        <button className="social-button">
-                            <FaGoogle className="social-icon" />
-                            Google
-                        </button>
                     </div>
                     <form className="auth-form" onSubmit={handleSubmit}>
                         {!isSignIn && (
@@ -163,7 +159,7 @@ const Auth = () => {
 
                         {isSignIn && (
                             <div className="form-extra" style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                                <a href="#forgot" className="forgot-link">Forgot password?</a>
+                                <a href="/reset-password" className="forgot-link">Forgot password?</a>
                             </div>
                         )}
 

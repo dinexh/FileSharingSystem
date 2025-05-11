@@ -29,6 +29,9 @@ public class User implements UserDetails {
 
     @Column(name = "profile_image_url")
     private String profileImageUrl;
+    
+    @Column(name = "preferred_language", nullable = false)
+    private String preferredLanguage = "en"; // Default to English
 
     // Constructors
     public User() {}
@@ -36,6 +39,7 @@ public class User implements UserDetails {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
+        this.preferredLanguage = "en"; // Default to English
     }
 
     // Getters & Setters
@@ -68,6 +72,12 @@ public class User implements UserDetails {
     }
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+    public String getPreferredLanguage() {
+        return preferredLanguage;
+    }
+    public void setPreferredLanguage(String preferredLanguage) {
+        this.preferredLanguage = preferredLanguage;
     }
 
     @Override

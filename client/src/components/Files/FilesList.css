@@ -153,7 +153,11 @@
 .files-table tbody tr:hover {
     background-color: var(--bg-light);
 }
-
+.no-files{
+    background-color: var(--bg-color);
+    background-color: red;
+    width: 100%;
+}
 /* File Type Cell */
 .file-type-cell {
     width: 10px;
@@ -525,10 +529,10 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
+
 }
 
 .file-viewer-container {
-    background-color: white;
     border-radius: 12px;
     width: 90%;
     max-width: 1200px;

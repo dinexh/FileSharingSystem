@@ -10,6 +10,7 @@ import FilesPage from './(pages)/dashboard/files';
 import SharedPage from './(pages)/dashboard/shared';
 import HomePage from './(pages)/dashboard/home';
 import Settings from './(pages)/dashboard/settings';
+import PasswordResetPage from './(pages)/reset-password/page';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
@@ -23,6 +24,7 @@ function App() {
             {/* Public routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<PasswordResetPage />} />
             
             {/* Protected routes with nested routes */}
             <Route 

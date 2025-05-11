@@ -2,6 +2,7 @@ package com.filesharing.backend.controller;
 
 import com.filesharing.backend.model.User;
 import com.filesharing.backend.security.JwtTokenProvider;
+import com.filesharing.backend.service.EmailService;
 import com.filesharing.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,18 +19,31 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtTokenProvider tokenProvider;
+    private final EmailService emailService;
 
     public AuthController(AuthenticationManager authenticationManager,
                          UserService userService,
-                         JwtTokenProvider tokenProvider) {
+                         JwtTokenProvider tokenProvider,
+                         EmailService emailService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.tokenProvider = tokenProvider;
+        this.emailService = emailService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.registerUser(user));
+        User registeredUser = userService.registerUser(user);
+        
+        // Send welcome email
+        try {
+            emailService.sendWelcomeEmail(registeredUser.getEmail(), registeredUser.getFullName());
+        } catch (Exception e) {
+            // Log error but continue with registration
+            System.err.println("Failed to send welcome email: " + e.getMessage());
+        }
+        
+        return ResponseEntity.ok(registeredUser);
     }
 
     @PostMapping("/login")

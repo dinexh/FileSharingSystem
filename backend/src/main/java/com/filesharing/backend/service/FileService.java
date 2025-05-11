@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class FileService {
@@ -34,12 +35,15 @@ public class FileService {
     private final UserRepository userRepository;
     private final StarredFileRepository starredFileRepository;
     private final FileShareRepository fileShareRepository;
+    private final EmailService emailService;
 
-    public FileService(FileRepository fileRepository, UserRepository userRepository, StarredFileRepository starredFileRepository, FileShareRepository fileShareRepository) {
+    @Autowired
+    public FileService(FileRepository fileRepository, UserRepository userRepository, StarredFileRepository starredFileRepository, FileShareRepository fileShareRepository, EmailService emailService) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.starredFileRepository = starredFileRepository;
         this.fileShareRepository = fileShareRepository;
+        this.emailService = emailService;
         System.out.println("FileService initialized with uploadDir: " + uploadDir);
     }
 
@@ -383,7 +387,24 @@ public class FileService {
         String accessToken = UUID.randomUUID().toString();
         fileShare.setAccessLink("/shared/access/" + accessToken);
         
-        return fileShareRepository.save(fileShare);
+        FileShare savedFileShare = fileShareRepository.save(fileShare);
+        
+        // Get owner details for the email
+        String ownerName = "File Sharing User";
+        Optional<User> ownerOpt = userRepository.findById(ownerUserId);
+        if (ownerOpt.isPresent()) {
+            ownerName = ownerOpt.get().getFullName();
+        }
+        
+        // Send email notification
+        try {
+            emailService.sendFileSharedEmail(recipientEmail, ownerName, file.getOriginalName());
+        } catch (Exception e) {
+            // Log error but continue with sharing
+            System.err.println("Failed to send file sharing notification email: " + e.getMessage());
+        }
+        
+        return savedFileShare;
     }
     
     /**
