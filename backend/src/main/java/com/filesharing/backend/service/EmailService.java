@@ -9,18 +9,23 @@ import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import com.filesharing.backend.repository.UserRepository;
+import java.util.Optional;
+import com.filesharing.backend.model.User;
 
 @Service
 public class EmailService {
 
     private final JavaMailSender emailSender;
+    private final UserRepository userRepository;
     
     @Value("${spring.mail.properties.mail.smtp.from:nodemailer.10010@gmail.com}")
     private String fromEmail;
 
     @Autowired
-    public EmailService(JavaMailSender emailSender) {
+    public EmailService(JavaMailSender emailSender, UserRepository userRepository) {
         this.emailSender = emailSender;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -37,8 +42,23 @@ public class EmailService {
 
     /**
      * Send an HTML email with file sharing information
+     * Checks if the user has notifications enabled before sending
      */
     public void sendFileSharedEmail(String to, String ownerName, String fileName) {
+        // Check if the user has notifications enabled
+        boolean shouldSend = true;
+        Optional<User> optUser = userRepository.findByEmail(to);
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+            shouldSend = user.isNotificationsEnabled();
+        }
+
+        // If notifications are disabled, skip sending
+        if (!shouldSend) {
+            System.out.println("Skipping file share notification email to " + to + " due to user preferences");
+            return;
+        }
+
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -64,8 +84,23 @@ public class EmailService {
 
     /**
      * Send a welcome email after sign up
+     * Respects notification preferences
      */
     public void sendWelcomeEmail(String to, String fullName) {
+        // Check if the user has notifications enabled (for existing users)
+        boolean shouldSend = true;
+        Optional<User> optUser = userRepository.findByEmail(to);
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+            shouldSend = user.isNotificationsEnabled();
+        }
+
+        // If notifications are disabled, skip sending
+        if (!shouldSend) {
+            System.out.println("Skipping welcome email to " + to + " due to user preferences");
+            return;
+        }
+        
         try {
             MimeMessage message = emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -98,6 +133,7 @@ public class EmailService {
 
     /**
      * Send a password reset email
+     * Always sends regardless of notification preferences
      */
     public void sendPasswordResetEmail(String to, String resetToken) {
         try {

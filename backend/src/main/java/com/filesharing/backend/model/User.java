@@ -32,6 +32,9 @@ public class User implements UserDetails {
     
     @Column(name = "preferred_language", nullable = false)
     private String preferredLanguage = "en"; // Default to English
+    
+    @Column(name = "notifications_enabled", nullable = false)
+    private boolean notificationsEnabled = true; // Default to enabled
 
     // Constructors
     public User() {}
@@ -40,6 +43,7 @@ public class User implements UserDetails {
         this.email = email;
         this.password = password;
         this.preferredLanguage = "en"; // Default to English
+        this.notificationsEnabled = true; // Default to enabled
     }
 
     // Getters & Setters
@@ -78,6 +82,12 @@ public class User implements UserDetails {
     }
     public void setPreferredLanguage(String preferredLanguage) {
         this.preferredLanguage = preferredLanguage;
+    }
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+    public void setNotificationsEnabled(boolean notificationsEnabled) {
+        this.notificationsEnabled = notificationsEnabled;
     }
 
     @Override

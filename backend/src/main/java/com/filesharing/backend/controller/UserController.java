@@ -121,6 +121,36 @@ public class UserController {
                 .header("Content-Type", contentType)
                 .body(imageBytes);
     }
+
+    @GetMapping("/notifications")
+    public ResponseEntity<?> getNotificationPreferences(Authentication authentication) {
+        boolean enabled = userService.getNotificationPreferences(authentication.getName());
+        return ResponseEntity.ok(Map.of("enabled", enabled));
+    }
+    
+    @PutMapping("/notifications")
+    public ResponseEntity<?> updateNotificationPreferences(Authentication authentication, @RequestBody Map<String, Boolean> request) {
+        Boolean enabled = request.get("enabled");
+        if (enabled == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Enabled parameter is required"));
+        }
+        
+        User user = userService.updateNotificationPreferences(authentication.getName(), enabled);
+        return ResponseEntity.ok(Map.of(
+            "message", "Notification preferences updated",
+            "enabled", user.isNotificationsEnabled()
+        ));
+    }
+    
+    @DeleteMapping("/account")
+    public ResponseEntity<?> deleteAccount(Authentication authentication) {
+        try {
+            userService.deleteAccount(authentication.getName());
+            return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
 
 class UpdateProfileRequest {

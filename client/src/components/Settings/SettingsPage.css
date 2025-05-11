@@ -358,11 +358,12 @@ input:checked + .toggle-slider:before {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.75);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(2px);
 }
 
 .modal-container {
@@ -372,127 +373,143 @@ input:checked + .toggle-slider:before {
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-header {
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-color);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: var(--text-primary);
 }
 
 .modal-content {
-    padding: 1.5rem;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .warning-icon {
-    width: 60px;
-    height: 60px;
+    width: 70px;
+    height: 70px;
     background-color: rgba(239, 68, 68, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .warning-icon svg {
-    font-size: 2rem;
-    color: var(--error-color);
+    font-size: 2.25rem;
+    color: var(--error-color, #ef4444);
 }
 
 .modal-text {
     text-align: center;
     color: var(--text-primary);
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
-    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+    line-height: 1.6;
+    font-size: 1rem;
 }
 
 .confirmation-input {
     width: 100%;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .confirmation-input label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-primary);
+    text-align: center;
 }
 
 .confirmation-input input {
     width: 100%;
-    padding: 0.6rem 0.85rem;
-    border: 1px solid var(--border-color);
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     background-color: var(--surface-color);
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 1px;
     transition: all 0.2s ease;
 }
 
 .confirmation-input input:focus {
     outline: none;
-    border-color: var(--error-color);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    border-color: var(--error-color, #ef4444);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 }
 
 .modal-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
     background-color: var(--surface-color);
     border-top: 1px solid var(--border-color);
 }
 
 .cancel-btn {
-    padding: 0.6rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     background-color: transparent;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 100px;
 }
 
 .cancel-btn:hover {
     background-color: var(--bg-lighter);
     color: var(--text-primary);
+    border-color: var(--text-secondary);
 }
 
 .confirm-delete-btn {
-    padding: 0.6rem 1.25rem;
-    background-color: var(--error-color);
+    padding: 0.75rem 1.5rem;
+    background-color: var(--error-color, #ef4444);
     border: none;
     border-radius: var(--radius-md);
     color: white;
     font-weight: 500;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    justify-content: center;
+    min-width: 140px;
 }
 
 .confirm-delete-btn:hover:not(:disabled) {
     background-color: #dc2626;
+    transform: translateY(-1px);
 }
 
 .confirm-delete-btn:disabled {
-    opacity: 0.7;
+    opacity: 0.65;
     cursor: not-allowed;
 }
 

@@ -9,6 +9,7 @@ import {
     FiEye
 } from 'react-icons/fi';
 import { useTheme } from '../../context/ThemeContext';
+import { toast } from 'react-toastify';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
@@ -23,9 +24,35 @@ const SettingsPage = () => {
         const savedLanguage = localStorage.getItem('language') || 'english';
         setLanguage(savedLanguage);
         
-        const notifSetting = localStorage.getItem('notifications');
-        setNotifications(notifSetting === null ? true : notifSetting === 'true');
+        // Fetch notification preferences from the server
+        fetchNotificationPreferences();
     }, []);
+    
+    const fetchNotificationPreferences = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/users/notifications', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setNotifications(data.enabled);
+                localStorage.setItem('notifications', data.enabled);
+            } else {
+                // If we can't fetch from server, use local storage as fallback
+                const notifSetting = localStorage.getItem('notifications');
+                setNotifications(notifSetting === null ? true : notifSetting === 'true');
+            }
+        } catch (error) {
+            console.error('Error fetching notification preferences:', error);
+            // Use local storage as fallback
+            const notifSetting = localStorage.getItem('notifications');
+            setNotifications(notifSetting === null ? true : notifSetting === 'true');
+        }
+    };
 
     const handleThemeChange = (newTheme) => {
         toggleTheme(newTheme);
@@ -36,9 +63,40 @@ const SettingsPage = () => {
         localStorage.setItem('language', e.target.value);
     };
 
-    const handleNotificationToggle = () => {
-        setNotifications(!notifications);
-        localStorage.setItem('notifications', !notifications);
+    const handleNotificationToggle = async () => {
+        const newNotificationState = !notifications;
+        
+        // Update local state and localStorage immediately for better UX
+        setNotifications(newNotificationState);
+        localStorage.setItem('notifications', newNotificationState);
+        
+        // Then update server
+        try {
+            const response = await fetch('http://localhost:8080/api/users/notifications', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ enabled: newNotificationState })
+            });
+            
+            if (response.ok) {
+                toast.success(`Email notifications ${newNotificationState ? 'enabled' : 'disabled'}`);
+            } else {
+                // If server update fails, revert to original state
+                const data = await response.json();
+                toast.error(data.error || 'Failed to update notification preferences');
+                setNotifications(!newNotificationState);
+                localStorage.setItem('notifications', !newNotificationState);
+            }
+        } catch (error) {
+            console.error('Error updating notification preferences:', error);
+            toast.error('Failed to update notification preferences');
+            // Revert to original state
+            setNotifications(!newNotificationState);
+            localStorage.setItem('notifications', !newNotificationState);
+        }
     };
 
     const handleDeleteAccountClick = () => {
@@ -50,20 +108,59 @@ const SettingsPage = () => {
         setConfirmText('');
     };
 
-    const confirmDeleteAccount = () => {
+    const confirmDeleteAccount = async () => {
         if (confirmText !== 'DELETE') {
             return;
         }
         
         setIsLoading(true);
         
-        // API call would go here
-        setTimeout(() => {
+        try {
+            const response = await fetch('http://localhost:8080/api/users/account', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            
+            // Parse response regardless of status
+            let data;
+            try {
+                data = await response.json();
+            } catch (e) {
+                // If response is not JSON
+                data = { error: 'Unknown server error' };
+            }
+            
+            if (response.ok) {
+                toast.success('Account deleted successfully');
+                // Clear local storage
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                // Redirect to login page
+                setTimeout(() => {
+                    window.location.href = '/auth';
+                }, 1500);
+            } else {
+                let errorMessage = 'Failed to delete account';
+                
+                // Check for specific errors
+                if (data.error && data.error.includes("foreign key constraint fails")) {
+                    errorMessage = "Cannot delete account: You have files or shared content that need to be removed first. Please contact an administrator.";
+                } else if (data.error) {
+                    errorMessage = data.error;
+                }
+                
+                toast.error(errorMessage);
+                setIsLoading(false);
+                setIsDeleteModalOpen(false);
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            toast.error('An error occurred while deleting your account. Please try again later.');
             setIsLoading(false);
             setIsDeleteModalOpen(false);
-            // Redirect to login
-            // window.location.href = '/auth';
-        }, 1500);
+        }
     };
 
     return (
@@ -161,6 +258,8 @@ const SettingsPage = () => {
                                     placeholder="DELETE" 
                                     value={confirmText}
                                     onChange={(e) => setConfirmText(e.target.value)}
+                                    autoFocus
+                                    autoComplete="off"
                                 />
                             </div>
                         </div>
@@ -176,7 +275,7 @@ const SettingsPage = () => {
                                 {isLoading ? (
                                     <>
                                         <span className="loader"></span>
-                                        Deleting...
+                                        <span>Deleting...</span>
                                     </>
                                 ) : (
                                     "Delete Account"

@@ -37,11 +37,21 @@ public class File {
     @Column(name = "original_name", nullable = false)
     private String originalName;
     
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId = 1L; // Default to 1 as a fallback
+    // Use ManyToOne with an optional relationship for both user fields
+    // This allows the user to be null if deleted
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", insertable = false, updatable = false)
+    private User owner;
     
-    @Column(name = "user_id", nullable = false)
-    private Long userId = 1L; // Default to 1 as a fallback
+    @Column(name = "owner_id")
+    private Long ownerId;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+    
+    @Column(name = "user_id")
+    private Long userId;
 
     // Getters and setters
     public Long getId() { return id; }
@@ -71,4 +81,16 @@ public class File {
     public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+    
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { 
+        this.owner = owner;
+        this.ownerId = owner != null ? owner.getId() : null;
+    }
+    
+    public User getUser() { return user; }
+    public void setUser(User user) { 
+        this.user = user;
+        this.userId = user != null ? user.getId() : null;
+    }
 } 
