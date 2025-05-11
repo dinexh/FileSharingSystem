@@ -4,19 +4,51 @@ A secure and user-friendly file sharing application built with React and Spring 
 
 ## Features
 
-- User authentication and account management
-- File upload, download, and sharing
-- Email notifications for file sharing (with toggleable preferences)
-- Light/Dark mode themes
-- File organization with starred files
-- Share files via email
+- User authentication with JWT-based security
+- File upload, download, and sharing capabilities
+- Email notifications for file sharing with customizable preferences
+- Light/Dark mode theme support
+- File organization with starred/favorite files
+- Share files via email or shareable links
+- Permission-based file access controls (read-only or edit)
+- File metadata storage and management
 - Responsive design for all devices
 
-## Getting Started
+## System Architecture
 
-This application consists of two parts:
-1. A React.js frontend client
-2. A Spring Boot backend server
+### File Storage and Sharing
+
+The FileSharingSystem employs a hybrid architecture for file storage and sharing:
+
+1. **Physical Storage**:
+   - Files are stored in the filesystem within an `uploads` directory
+   - Files are renamed with UUID-based names to prevent conflicts
+   - Original filenames and metadata are preserved in the database
+   - File paths are stored in the database to facilitate retrieval
+
+2. **Database Storage**:
+   - File metadata stored in MySQL database
+   - Includes fields for owner, size, type, upload date, etc.
+   - Maintains relationships between files and users
+
+3. **Sharing Mechanism**:
+   - Files are shared via reference rather than duplication
+   - A `FileShare` entity tracks sharing relationships:
+     - Owner ID
+     - File ID
+     - Recipient email
+     - Permission level (read/edit)
+     - Sharing date and expiration date
+   - Email notifications sent when files are shared
+   - Optional shareable links for easy access
+
+4. **Security**:
+   - JWT-based authentication for API access
+   - Permission-based access control
+   - Files are private by default
+   - Optional expiration dates for shared files
+
+## Setup and Installation
 
 ### Prerequisites
 
@@ -26,18 +58,26 @@ This application consists of two parts:
 - Maven
 - MySQL database
 
-## Setup and Installation
-
 ### Database Setup
 
-1. Create a MySQL database named `filesharing_db`
-2. Create a database user or use the root user
+1. Create a MySQL database:
+   ```sql
+   CREATE DATABASE filesharing_db;
+   ```
+
+2. Create a user or use root (for development):
+   ```sql
+   CREATE USER 'fileuser'@'localhost' IDENTIFIED BY 'your_password';
+   GRANT ALL PRIVILEGES ON filesharing_db.* TO 'fileuser'@'localhost';
+   FLUSH PRIVILEGES;
+   ```
 
 ### Backend Setup (Spring Boot)
 
-1. Navigate to the backend directory:
+1. Clone the repository and navigate to the backend directory:
    ```bash
-   cd backend
+   git clone https://github.com/yourusername/FileSharingSystem.git
+   cd FileSharingSystem/backend
    ```
 
 2. Configure your database connection in `src/main/resources/application.properties`:
@@ -47,7 +87,22 @@ This application consists of two parts:
    spring.datasource.password=your_db_password
    ```
 
-3. Build and run the Spring Boot application:
+3. Configure email settings in the same file (for sharing notifications):
+   ```properties
+   spring.mail.host=smtp.example.com
+   spring.mail.port=587
+   spring.mail.username=your_email@example.com
+   spring.mail.password=your_email_password
+   spring.mail.properties.mail.smtp.auth=true
+   spring.mail.properties.mail.smtp.starttls.enable=true
+   ```
+
+4. **Create uploads directory** (this folder is excluded from git):
+   ```bash
+   mkdir uploads
+   ```
+
+5. Build and run the Spring Boot application:
    ```bash
    mvn clean install
    mvn spring-boot:run
@@ -59,7 +114,7 @@ This application consists of two parts:
 
 1. Navigate to the frontend directory:
    ```bash
-   cd client
+   cd ../client
    ```
 
 2. Install dependencies:
@@ -76,21 +131,57 @@ This application consists of two parts:
 
 ## Using the Application
 
+### User Registration and Login
+
 1. Open your browser and go to http://localhost:3000
-2. Create a new account or log in with existing credentials
-3. Upload files from the home page using the upload button
-4. Share files with other users by entering their email
-5. Manage notifications and appearance in Settings
+2. Click "signup" to create a new account
+3. Verify your email (if configured)
+4. Log in with your credentials
 
-## API Documentation
+### File Management
 
-The backend provides RESTful APIs for all operations:
+1. **Upload Files**: 
+   - Use the upload button on the dashboard
+   - Drag and drop files into the upload area
+   - Maximum file size is 25MB by default
 
-- `/api/auth/register` - User registration
-- `/api/auth/login` - User authentication
-- `/api/files` - File operations (upload, download, list)
-- `/api/files/share` - File sharing operations
-- `/api/users` - User profile management
+2. **View Files**:
+   - All your files appear on the dashboard
+   - Filter by name, type, or date
+   - Click on a file to preview (if supported)
+   - Star important files to find them quickly
+
+3. **Download Files**:
+   - Click the download icon on any file
+   - Files are downloaded with their original names
+
+### Sharing Files
+
+1. **Share with Users**:
+   - Click the share icon on any file
+   - Enter recipient email address
+   - Choose permission level (read-only or edit)
+   - Add a message (optional)
+   - Toggle email notification
+
+2. **Share via Link**:
+   - Click "Get Link" on any file
+   - Copy the generated link
+   - Links can be set to expire (optional)
+
+3. **Manage Shared Files**:
+   - Go to the "Shared" tab
+   - View files shared with you
+   - View files you've shared with others
+   - Revoke access if needed
+
+### User Settings
+
+1. Access your profile by clicking your username
+2. Update personal information
+3. Change password
+4. Configure notification preferences
+5. Toggle between light and dark themes
 
 ## Troubleshooting
 
@@ -98,20 +189,35 @@ The backend provides RESTful APIs for all operations:
 
 1. **Backend connection errors**
    - Ensure MySQL is running
-   - Check the database credentials in application.properties
+   - Verify database credentials in application.properties
+   - Check that port 8080 is not in use
 
 2. **File upload issues**
-   - Check that the upload directory exists and has proper permissions
-   - Verify file size limits in application.properties
+   - Confirm file size is under 25MB (default limit)
+   - Check that the uploads directory has write permissions
+   - Verify file type is not blocked by security settings
 
 3. **Email notification issues**
-   - Ensure email configuration is correct in application.properties
+   - Verify SMTP settings in application.properties
    - Check spam folder for notification emails
+   - Ensure email provider allows SMTP access
 
-## Contributing
+## API Documentation
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+The backend provides RESTful APIs for all operations:
+
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User authentication
+- `GET /api/files` - List all user files
+- `POST /api/files/upload` - Upload new file
+- `GET /api/files/{id}` - Download file
+- `POST /api/files/share` - Share file with user
+- `GET /api/files/shared-with-me` - List received files
+- `GET /api/files/shared-by-me` - List shared files
+
+## Developer 
+This site was made for a hackathon at KLEF (Deembed to be University) by https://dineshkorukonda.in
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
